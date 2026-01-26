@@ -100,3 +100,11 @@ gedit ~/.pypirc
 
 ## Cycle through windows:
 gsettings set org.gnome.shell.extensions.dash-to-dock scroll-action 'cycle-windows'
+
+
+## Steam
+# Install steam via the "App Center" (no apt :'( unfortunetaly)
+# Install the extra 32 bit nvidia drivers
+sudo dpkg --add-architecture i386
+sudo apt update
+sudo apt install libnvidia-gl-590:i386
