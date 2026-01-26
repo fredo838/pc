@@ -63,7 +63,8 @@ unzip awscliv2.zip
 sudo ./aws/install
 rm -rf ./aws awscliv2.zip
 
-## kubectl CHECK IF YOU ALREADY HAVE IT
+## kubectl 
+# CHECK IF YOU ALREADY HAVE IT!
 sudo apt-get update
 sudo apt-get install -y apt-transport-https ca-certificates curl gnupg
 curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.35/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
@@ -73,6 +74,7 @@ sudo chmod 644 /etc/apt/sources.list.d/kubernetes.list
 sudo apt-get update
 sudo apt-get install -y kubectl
 
+## Python config files
 # .netrc
 touch ~/.netrc
 gedit ~/.netrc
@@ -94,3 +96,7 @@ gedit ~/.pypirc
 
 # [gitlab]
 # repository = https://gitlab.com/api/v4/groups/58977424/-/packages/pypi
+
+
+## Cycle through windows:
+gsettings set org.gnome.shell.extensions.dash-to-dock scroll-action 'cycle-windows'
