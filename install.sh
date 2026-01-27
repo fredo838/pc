@@ -105,9 +105,12 @@ gsettings set org.gnome.shell.extensions.dash-to-dock scroll-action 'cycle-windo
 ## Steam
 # Install steam via the "App Center" (no apt :'( unfortunetaly)
 # Install the extra 32 bit nvidia drivers
-sudo dpkg --add-architecture i386
-sudo apt update
-sudo apt install libnvidia-gl-590:i386
+# sudo dpkg --add-architecture i386
+# sudo apt update
+# sudo apt install libnvidia-gl-590:i386
+sudo add-apt-repository multiverse
+sudo apt-get update
+sudo apt-get install steam
 
 ## Zsh
 sudo apt update
@@ -115,7 +118,7 @@ sudo apt install zsh -y
 # Set zsh as default terminal
 chsh -s $(which zsh) + LOGOUT/LOGIN
 
-# Slow Terminal after login:
+# On mac: set keybindings:
+## Slow Terminal after login:
 # https://bugs.launchpad.net/ubuntu/+source/nvidia-graphics-drivers-535/+bug/2042301?comments=all
 
-# On mac: set keybindings:
