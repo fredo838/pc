@@ -1,48 +1,90 @@
-# --- 1. INITIALIZATION ---
-autoload -U +X compinit && compinit
+# --- CORE SELECTION ENGINE ---
 
-if [ -e /Users/fred/.bode/bode_autocomplete_zsh.sh ]; then
-    source /Users/fred/.bode/bode_autocomplete_zsh.sh
-fi
-
-# --- 2. CURSOR ---
-echo -ne '\e[5 q'
-precmd() { echo -ne '\e[5 q' }
-
-# --- 3. SELECTION & COPY ---
-zle_highlight=(region:bg=60)
-
-select-prev-word() { 
-    (( ! REGION_ACTIVE )) && zle set-mark-command
-    zle backward-word 
+# Selection Wrapper
+widget::util-select() {
+  local target_widget=$1
+  if (( ! REGION_ACTIVE )); then
+    zle set-mark-command
+  fi
+  zle $target_widget
 }
-select-next-word() { 
-    (( ! REGION_ACTIVE )) && zle set-mark-command
-    zle forward-word 
+
+# Explicit Unselect Wrapper (for movements without shift)
+widget::util-unselect() {
+  REGION_ACTIVE=0
+  zle $1
 }
+
+# Create widgets
+foreach w (backward-char forward-char backward-word forward-word beginning-of-line end-of-line) {
+  eval "${w}-select() { widget::util-select $w }"
+  eval "${w}-unselect() { widget::util-unselect $w }"
+  zle -N "${w}-select"
+  zle -N "${w}-unselect"
+}
+
+# --- CLIPBOARD FUNCTIONS ---
 
 copy-to-mac() {
     if (( REGION_ACTIVE )); then
+        # Zsh-native way to ensure the region is recognized
         zle copy-region-as-kill
-        printf "%s" "$CUTBUFFER" | pbcopy
+        
+        # Sync the Zsh kill ring to macOS clipboard
+        # Use $CUTBUFFER which holds the last 'killed' text
+        print -rn -- "$CUTBUFFER" | pbcopy
+        
+        # Reset selection state
         REGION_ACTIVE=0
-        zle -R "COPIED TO CLIPBOARD"
-    else
-        zle -R "No text selected to copy"
+        zle -R "Text copied to clipboard" # Brief status message
     fi
 }
-
-zle -N select-prev-word
-zle -N select-next-word
 zle -N copy-to-mac
 
-# --- 4. THE BINDINGS ---
-# Selection (Working)
-bindkey '^[[1;6D' select-prev-word   # Ctrl+Shift+Left
-bindkey '^[[1;6C' select-next-word   # Ctrl+Shift+Right
+paste-from-mac() {
+    # If we are overwriting a selection, kill it first
+    if (( REGION_ACTIVE )); then
+        zle kill-region
+    fi
+    
+    # Insert the content of pbpaste at cursor
+    LBUFFER+="$(pbpaste)"
+    
+    # Clear the selection state
+    REGION_ACTIVE=0
+}
+zle -N paste-from-mac
 
-# Copy (New Proxy Signal)
-bindkey '^[[24;5;3~' copy-to-mac    # This catches the new F12-style code
+# --- BINDINGS ---
 
-# Paste
-bindkey '^V' bracketed-paste
+# 1. SHIFT + ARROWS (Character Selection)
+# Note: forward-char-select here will correctly shrink a backward-selection char-by-char
+bindkey "\e[1;2C" forward-char-select        # Shift + Right
+bindkey "\e[1;2D" backward-char-select       # Shift + Left
+
+# 2. CTRL + SHIFT + ARROWS (Word Selection)
+bindkey "\e[1;6C" forward-word-select        # Ctrl + Shift + Right
+bindkey "\e[1;6D" backward-word-select       # Ctrl + Shift + Left
+
+# 3. HOME / END (With and without Shift)
+bindkey "\e[H"    beginning-of-line-unselect # Home
+bindkey "\e[F"    end-of-line-unselect       # End
+bindkey "\e[1;2H" beginning-of-line-select   # Shift + Home
+bindkey "\e[1;2F" end-of-line-select         # Shift + End
+bindkey "\e[1;6H" beginning-of-line-select   # Ctrl + Shift + Home
+bindkey "\e[1;6F" end-of-line-select         # Ctrl + Shift + End
+
+# 4. PLAIN MOVEMENTS (Kill selection)
+bindkey "\e[C"  forward-char-unselect        # Right
+bindkey "\e[D"  backward-char-unselect       # Left
+bindkey "\eOC"  forward-char-unselect        # Right (App mode)
+bindkey "\eOD"  backward-char-unselect       # Left (App mode)
+bindkey "\e[1;5C" forward-word-unselect      # Ctrl + Right
+bindkey "\e[1;5D" backward-word-unselect     # Ctrl + Left
+
+# 5. CLIPBOARD
+bindkey "\e[1;6X" copy-to-mac
+bindkey "\e[1;6Y" paste-from-mac
+
+# --- CURSOR ---
+echo -ne '\e[5 q' # Vertical bar
