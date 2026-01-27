@@ -108,3 +108,12 @@ gsettings set org.gnome.shell.extensions.dash-to-dock scroll-action 'cycle-windo
 sudo dpkg --add-architecture i386
 sudo apt update
 sudo apt install libnvidia-gl-590:i386
+
+## Zsh
+sudo apt update
+sudo apt install zsh -y
+# Set zsh as default terminal
+# chsh -s $(which zsh) + LOGOUT/LOGIN
+
+## Slow Terminal after login:
+# https://bugs.launchpad.net/ubuntu/+source/nvidia-graphics-drivers-535/+bug/2042301?comments=all
