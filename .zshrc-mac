@@ -1,0 +1,48 @@
+# --- 1. INITIALIZATION ---
+autoload -U +X compinit && compinit
+
+if [ -e /Users/fred/.bode/bode_autocomplete_zsh.sh ]; then
+    source /Users/fred/.bode/bode_autocomplete_zsh.sh
+fi
+
+# --- 2. CURSOR ---
+echo -ne '\e[5 q'
+precmd() { echo -ne '\e[5 q' }
+
+# --- 3. SELECTION & COPY ---
+zle_highlight=(region:bg=60)
+
+select-prev-word() { 
+    (( ! REGION_ACTIVE )) && zle set-mark-command
+    zle backward-word 
+}
+select-next-word() { 
+    (( ! REGION_ACTIVE )) && zle set-mark-command
+    zle forward-word 
+}
+
+copy-to-mac() {
+    if (( REGION_ACTIVE )); then
+        zle copy-region-as-kill
+        printf "%s" "$CUTBUFFER" | pbcopy
+        REGION_ACTIVE=0
+        zle -R "COPIED TO CLIPBOARD"
+    else
+        zle -R "No text selected to copy"
+    fi
+}
+
+zle -N select-prev-word
+zle -N select-next-word
+zle -N copy-to-mac
+
+# --- 4. THE BINDINGS ---
+# Selection (Working)
+bindkey '^[[1;6D' select-prev-word   # Ctrl+Shift+Left
+bindkey '^[[1;6C' select-next-word   # Ctrl+Shift+Right
+
+# Copy (New Proxy Signal)
+bindkey '^[[24;5;3~' copy-to-mac    # This catches the new F12-style code
+
+# Paste
+bindkey '^V' bracketed-paste

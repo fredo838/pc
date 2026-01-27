@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>ProfileCurrentVersion</key>
+    <real>2.09</real>
+	<key>keyMapBoundKeys</key>
+	<dict>
+		<key>#F739</key>
+		<string>toggleNumLock:</string>
+		<key>F728</key>
+		<string>&#x1b;[3~</string>
+		<key>^F702</key>
+		<string>&#x1b;b</string>
+		<key>^F703</key>
+		<string>&#x1b;f</string>
+		<key>^$F702</key>
+		<string>&#x1b;[1;6D</string>
+		<key>^$F703</key>
+		<string>&#x1b;[1;6C</string>
+		<key>^$C</key>
+	    <string>&#x1b;[24;5;3~</string>	</dict>
+    <key>name</key>
+    <string>Frederik</string>
+    <key>type</key>
+    <string>Window Settings</string>
+</dict>
+</plist>
