@@ -106,3 +106,6 @@ bindkey "\e[3~"     delete-selection-delete
 
 # --- CURSOR ---
 echo -ne '\e[5 q'
+
+# --- PROMPT ---
+PROMPT='%F{green}%n@%m%f:%F{blue}%~%f$ '
