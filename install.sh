@@ -122,3 +122,8 @@ chsh -s $(which zsh) + LOGOUT/LOGIN
 ## Slow Terminal after login:
 # https://bugs.launchpad.net/ubuntu/+source/nvidia-graphics-drivers-535/+bug/2042301?comments=all
 
+# Remove all Mac's keyboard shortcuts
+# It can be you even need to rebind some even though they are not active (wtf?) 
+cp .zshrc-mac ~/.zshrc
+# load keymap.json in iTerm2 Profile > Keys
+# enable "Report keys using CSI u mode"

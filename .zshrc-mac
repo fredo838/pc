@@ -1,6 +1,8 @@
+# Ensure we are in emacs mode for these bindings to work
+bindkey -e
+
 # --- CORE SELECTION ENGINE ---
 
-# Selection Wrapper
 widget::util-select() {
   local target_widget=$1
   if (( ! REGION_ACTIVE )); then
@@ -9,13 +11,12 @@ widget::util-select() {
   zle $target_widget
 }
 
-# Explicit Unselect Wrapper
 widget::util-unselect() {
   REGION_ACTIVE=0
   zle $1
 }
 
-# Create widgets
+# Create movement widgets
 foreach w (backward-char forward-char backward-word forward-word beginning-of-line end-of-line) {
   eval "${w}-select() { widget::util-select $w }"
   eval "${w}-unselect() { widget::util-unselect $w }"
@@ -23,29 +24,36 @@ foreach w (backward-char forward-char backward-word forward-word beginning-of-li
   zle -N "${w}-unselect"
 }
 
+# --- SMART DELETE LOGIC ---
+
+widget::util-delete-selection() {
+  if (( REGION_ACTIVE )); then
+    local low=$(( MARK < CURSOR ? MARK : CURSOR ))
+    local high=$(( MARK > CURSOR ? MARK : CURSOR ))
+    BUFFER=$BUFFER[1,$low]$BUFFER[$((high + 1)),-1]
+    CURSOR=$low
+    REGION_ACTIVE=0
+  else
+    zle $1
+  fi
+}
+
+delete-selection-backspace() { widget::util-delete-selection backward-delete-char }
+delete-selection-delete()    { widget::util-delete-selection delete-char }
+
+zle -N delete-selection-backspace
+zle -N delete-selection-delete
+
 # --- CLIPBOARD FUNCTIONS ---
 
 copy-to-mac() {
     if (( REGION_ACTIVE )); then
-        # Determine selection boundaries
-        # Zsh $CURSOR is 0-indexed; $BUFFER slicing is 1-indexed
         local low=$(( MARK < CURSOR ? MARK : CURSOR ))
         local high=$(( MARK > CURSOR ? MARK : CURSOR ))
         local selection=$BUFFER[$((low + 1)),$high]
-
-        # Debug Log
-
-
-        # Sync to Mac
         print -rn -- "$selection" | pbcopy
-        
-        # Set the Zsh kill ring so native 'yank' works
         CUTBUFFER="$selection"
-
-        # MOVE CURSOR TO END
         CURSOR=$high
-        
-        # Reset selection
         REGION_ACTIVE=0
     fi
 }
@@ -53,52 +61,48 @@ zle -N copy-to-mac
 
 paste-from-mac() {
     local pasted="$(pbpaste)"
-    
-
-    # If overwriting a selection
     if (( REGION_ACTIVE )); then
         local low=$(( MARK < CURSOR ? MARK : CURSOR ))
         local high=$(( MARK > CURSOR ? MARK : CURSOR ))
         BUFFER=$BUFFER[1,$low]$pasted$BUFFER[$((high + 1)),-1]
         CURSOR=$(( low + ${#pasted} ))
     else
-        # Standard insert
         LBUFFER+="$pasted"
     fi
-    
     REGION_ACTIVE=0
 }
 zle -N paste-from-mac
 
-# --- BINDINGS ---
+# --- BINDINGS (Matched to Action 10 JSON) ---
 
-# 1. SHIFT + ARROWS
-bindkey "\e[1;2C" forward-char-select
-bindkey "\e[1;2D" backward-char-select
+# 1. Selection Movements (Ctrl + Shift + Arrows/Home/End)
+bindkey "\e[1;6C"   forward-word-select          # Right
+bindkey "\e[1;6D"   backward-word-select         # Left
+bindkey "\e[1;6H"   beginning-of-line-select     # Home
+bindkey "\e[1;6F"   end-of-line-select           # End
 
-# 2. CTRL + SHIFT + ARROWS
-bindkey "\e[1;6C" forward-word-select
-bindkey "\e[1;6D" backward-word-select
+# 2. Clipboard (Ctrl + Shift + C/V)
+bindkey "\e[67;5u"  copy-to-mac                  # C
+bindkey "\e[86;5u"  paste-from-mac               # V
 
-# 3. HOME / END
-bindkey "\e[H"    beginning-of-line-unselect
-bindkey "\e[F"    end-of-line-unselect
-bindkey "\e[1;2H" beginning-of-line-select
-bindkey "\e[1;2F" end-of-line-select
-bindkey "\e[1;6H" beginning-of-line-select
-bindkey "\e[1;6F" end-of-line-select
+# 3. Smart Deletion (Ctrl + Backspace)
+bindkey "\e[127;5u" delete-selection-backspace
 
-# 4. PLAIN MOVEMENTS
-bindkey "\e[C"  forward-char-unselect
-bindkey "\e[D"  backward-char-unselect
-bindkey "\eOC"  forward-char-unselect
-bindkey "\eOD"  backward-char-unselect
-bindkey "\e[1;5C" forward-word-unselect
-bindkey "\e[1;5D" backward-word-unselect
+# 4. Standard Movement (Clear selection)
+bindkey "\e[C"      forward-char-unselect        # Right
+bindkey "\e[D"      backward-char-unselect       # Left
+bindkey "\e[H"      beginning-of-line-unselect   # Home
+bindkey "\e[F"      end-of-line-unselect         # End
+bindkey "\e[1;5C"   forward-word-unselect        # Ctrl+Right
+bindkey "\e[1;5D"   backward-word-unselect       # Ctrl+Left
 
-# 5. CLIPBOARD (Check these sequences in your terminal settings!)
-bindkey "\e[1;6X" copy-to-mac
-bindkey "\e[1;6Y" paste-from-mac
+# 5. Fallback Selection (Shift + Arrows)
+bindkey "\e[1;2C"   forward-char-select
+bindkey "\e[1;2D"   backward-char-select
+
+# 6. Standard Backspace/Delete
+bindkey "^?"        delete-selection-backspace
+bindkey "\e[3~"     delete-selection-delete
 
 # --- CURSOR ---
 echo -ne '\e[5 q'
