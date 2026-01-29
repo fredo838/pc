@@ -5,3 +5,16 @@ import = [
 [shell]
 program = "/bin/zsh"
 args = ["--login"]
+
+[[keyboard.bindings]]
+chars = "\u001b[67;5u"
+key = "C"
+mods = "Control|Shift"
+
+[[keyboard.bindings]]
+chars = "\u001b[86;5u"
+key = "V"
+mods = "Control|Shift"
+
+[window]
+dimensions = { columns = 80, lines = 24 }

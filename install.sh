@@ -5,7 +5,7 @@
 ## Initial
 sudo apt-get update
 sudo apt-get upgrade
-sudo apt-get install git gedit curl apt-transport-https ca-certificates gnupg
+sudo apt-get install git gedit curl apt-transport-https ca-certificates gnupg xclip
 # check nvidia-smi if GPU is installed
 
 
@@ -140,3 +140,7 @@ cp .zshrc-mac ~/.zshrc
 ## Alacritty Terminal
 sudo apt-get install npm
 npx alacritty-themes
+sudo gedit /usr/share/applications/Alacritty.desktop # set StartupNotify=false
+
+## Prefer Dark Mode:
+gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'

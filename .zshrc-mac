@@ -1,22 +1,48 @@
-# Ensure we are in emacs mode for these bindings to work
-bindkey -e
+# --- 1. CORE SHELL SETTINGS ---
+bindkey -e                           # Use Emacs mode
+echo -ne '\e[5 q'                    # Use blinking beam cursor
+PROMPT='%F{green}%n@%m%f:%F{blue}%~%f$ '
 
-# --- CORE SELECTION ENGINE ---
+# --- 2. CLIPBOARD HELPERS ---
+unset zle_bracketed_paste
+_clipboard_copy() {
+  local selection_data="$1"
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    printf "%s" "$selection_data" | pbcopy
+    return 0
+  elif command -v xclip > /dev/null; then
+    printf "%s" "$selection_data" | xclip -selection clipboard
+    return 0
+  elif command -v wl-copy > /dev/null; then
+    printf "%s" "$selection_data" | wl-copy
+    return 0
+  fi
+  return 1
+}
+
+_clipboard_paste() {
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    pbpaste
+  elif command -v xclip > /dev/null; then
+    xclip -selection clipboard -o
+  elif command -v wl-paste > /dev/null; then
+    wl-paste
+  fi
+}
+
+# --- 3. SELECTION ENGINE & AUTO-DESELECT ---
 
 widget::util-select() {
-  local target_widget=$1
-  if (( ! REGION_ACTIVE )); then
-    zle set-mark-command
-  fi
-  zle $target_widget
+  (( ! REGION_ACTIVE )) && zle set-mark-command
+  zle $1
 }
 
 widget::util-unselect() {
+  # Forces selection to clear when moving without Shift
   REGION_ACTIVE=0
   zle $1
 }
 
-# Create movement widgets
 foreach w (backward-char forward-char backward-word forward-word beginning-of-line end-of-line) {
   eval "${w}-select() { widget::util-select $w }"
   eval "${w}-unselect() { widget::util-unselect $w }"
@@ -24,7 +50,48 @@ foreach w (backward-char forward-char backward-word forward-word beginning-of-li
   zle -N "${w}-unselect"
 }
 
-# --- SMART DELETE LOGIC ---
+# --- 4. CLIPBOARD WIDGETS ---
+
+copy-selection() {
+  if (( REGION_ACTIVE )); then
+    local low=$(( MARK < CURSOR ? MARK : CURSOR ))
+    local high=$(( MARK > CURSOR ? MARK : CURSOR ))
+    local selection=$BUFFER[$((low + 1)),$high]
+    if _clipboard_copy "$selection"; then
+      CUTBUFFER="$selection"
+      printf '\a' # Success signal (Bell)
+    else
+      [[ "$OSTYPE" == "linux-gnu"* ]] && zle -M "Error: 'xclip' not installed."
+    fi
+    # Explicitly maintain the region active state
+    REGION_ACTIVE=1
+    zle -R
+  fi
+}
+zle -N copy-selection
+
+paste-selection() {
+  local pasted="$(_clipboard_paste)"
+  if [[ -n "$pasted" ]]; then
+    if (( REGION_ACTIVE )); then
+      local low=$(( MARK < CURSOR ? MARK : CURSOR ))
+      local high=$(( MARK > CURSOR ? MARK : CURSOR ))
+      # Delete the selection first
+      BUFFER=$BUFFER[1,$low]$BUFFER[$((high + 1)),-1]
+      # Then insert pasted text at the low position
+      BUFFER=$BUFFER[1,$low]$pasted$BUFFER[$((low + 1)),-1]
+      CURSOR=$(( low + ${#pasted} ))
+      REGION_ACTIVE=0
+    else
+      # Standard paste at cursor
+      LBUFFER+="$pasted"
+    fi
+  fi
+  zle -R
+}
+zle -N paste-selection
+
+# --- 5. SMART DELETE LOGIC ---
 
 widget::util-delete-selection() {
   if (( REGION_ACTIVE )); then
@@ -37,75 +104,34 @@ widget::util-delete-selection() {
     zle $1
   fi
 }
-
 delete-selection-backspace() { widget::util-delete-selection backward-delete-char }
 delete-selection-delete()    { widget::util-delete-selection delete-char }
-
 zle -N delete-selection-backspace
 zle -N delete-selection-delete
 
-# --- CLIPBOARD FUNCTIONS ---
+# --- 6. KEY BINDINGS ---
 
-copy-to-mac() {
-    if (( REGION_ACTIVE )); then
-        local low=$(( MARK < CURSOR ? MARK : CURSOR ))
-        local high=$(( MARK > CURSOR ? MARK : CURSOR ))
-        local selection=$BUFFER[$((low + 1)),$high]
-        print -rn -- "$selection" | pbcopy
-        CUTBUFFER="$selection"
-        CURSOR=$high
-        REGION_ACTIVE=0
-    fi
-}
-zle -N copy-to-mac
-
-paste-from-mac() {
-    local pasted="$(pbpaste)"
-    if (( REGION_ACTIVE )); then
-        local low=$(( MARK < CURSOR ? MARK : CURSOR ))
-        local high=$(( MARK > CURSOR ? MARK : CURSOR ))
-        BUFFER=$BUFFER[1,$low]$pasted$BUFFER[$((high + 1)),-1]
-        CURSOR=$(( low + ${#pasted} ))
-    else
-        LBUFFER+="$pasted"
-    fi
-    REGION_ACTIVE=0
-}
-zle -N paste-from-mac
-
-# --- BINDINGS (Matched to Action 10 JSON) ---
-
-# 1. Selection Movements (Ctrl + Shift + Arrows/Home/End)
-bindkey "\e[1;6C"   forward-word-select          # Right
-bindkey "\e[1;6D"   backward-word-select         # Left
-bindkey "\e[1;6H"   beginning-of-line-select     # Home
-bindkey "\e[1;6F"   end-of-line-select           # End
-
-# 2. Clipboard (Ctrl + Shift + C/V)
-bindkey "\e[67;5u"  copy-to-mac                  # C
-bindkey "\e[86;5u"  paste-from-mac               # V
-
-# 3. Smart Deletion (Ctrl + Backspace)
-bindkey "\e[127;5u" delete-selection-backspace
-
-# 4. Standard Movement (Clear selection)
-bindkey "\e[C"      forward-char-unselect        # Right
-bindkey "\e[D"      backward-char-unselect       # Left
-bindkey "\e[H"      beginning-of-line-unselect   # Home
-bindkey "\e[F"      end-of-line-unselect         # End
-bindkey "\e[1;5C"   forward-word-unselect        # Ctrl+Right
-bindkey "\e[1;5D"   backward-word-unselect       # Ctrl+Left
-
-# 5. Fallback Selection (Shift + Arrows)
+# Selection (Shift + Arrows)
 bindkey "\e[1;2C"   forward-char-select
 bindkey "\e[1;2D"   backward-char-select
+bindkey "\e[1;6C"   forward-word-select
+bindkey "\e[1;6D"   backward-word-select
+bindkey "\e[1;2H"   beginning-of-line-select
+bindkey "\e[1;2F"   end-of-line-select
 
-# 6. Standard Backspace/Delete
+# Deselection (Standard Arrows)
+bindkey "\e[C"      forward-char-unselect
+bindkey "\e[D"      backward-char-unselect
+bindkey "\e[H"      beginning-of-line-unselect
+bindkey "\e[F"      end-of-line-unselect
+bindkey "\e[1;5C"   forward-word-unselect
+bindkey "\e[1;5D"   backward-word-unselect
+
+# Clipboard
+bindkey "\e[67;5u"  copy-selection
+bindkey "\e[86;5u"  paste-selection
+
+# Deletion
 bindkey "^?"        delete-selection-backspace
 bindkey "\e[3~"     delete-selection-delete
-
-# --- CURSOR ---
-echo -ne '\e[5 q'
-
-# --- PROMPT ---
-PROMPT='%F{green}%n@%m%f:%F{blue}%~%f$ '
+bindkey "\e[127;5u" delete-selection-backspace
