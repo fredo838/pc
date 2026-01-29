@@ -112,6 +112,14 @@ sudo add-apt-repository multiverse
 sudo apt-get update
 sudo apt-get install steam
 
+### Install Hearthstone
+mkdir ~/.steam/debian-installation/steamapps/common/Hearthstone
+# Download Battle-net.exe and add to above folder
+mv Battle.net-Setup.exe ~/.steam/debian-installation/steamapps/common/Hearthstone/
+# In steam - click 'Add a Game' > 'Add a non Steam Game' > Browse > Selec Folder
+# In compatability selet 'Proton Hotfix'
+
+
 ## Zsh
 sudo apt update
 sudo apt install zsh -y
