@@ -1,0 +1,221 @@
+[
+    // --- GENERAL: APPLICATION & FILE ---
+    {
+        "key": "ctrl+s",
+        "command": "workbench.action.files.save"
+    },
+    {
+        "key": "ctrl+z",
+        "command": "undo"
+    },
+    {
+        "key": "ctrl+a",
+        "command": "editor.action.selectAll"
+    },
+    {
+        "key": "ctrl+shift+p",
+        "command": "workbench.action.showCommands"
+    },
+    // Search logic (Context-aware)
+    {
+        "key": "ctrl+f",
+        "command": "actions.find",
+        "when": "editorFocus"
+    },
+    {
+        "key": "ctrl+f",
+        "command": "workbench.action.terminal.focusFind",
+        "when": "terminalFocus"
+    },
+    // --- SHARED: COPY & PASTE ---
+    // Standard keys (Restored)
+    {
+        "key": "ctrl+c",
+        "command": "editor.action.clipboardCopyAction",
+        "when": "textInputFocus"
+    },
+    {
+        "key": "ctrl+v",
+        "command": "editor.action.clipboardPasteAction",
+        "when": "textInputFocus"
+    },
+    // Shift variants (For both Editor and Terminal Sequences)
+    {
+        "key": "ctrl+shift+c",
+        "command": "editor.action.clipboardCopyAction",
+        "when": "textInputFocus"
+    },
+    {
+        "key": "ctrl+shift+v",
+        "command": "editor.action.clipboardPasteAction",
+        "when": "textInputFocus"
+    },
+    // --- EDITOR: SELECTION & NAVIGATION ---
+    {
+        "key": "ctrl+shift+up",
+        "command": "cursorUpSelect",
+        "when": "textInputFocus"
+    },
+    {
+        "key": "ctrl+shift+down",
+        "command": "cursorDownSelect",
+        "when": "textInputFocus"
+    },
+    {
+        "key": "ctrl+right",
+        "command": "cursorWordEndRight",
+        "when": "textInputFocus"
+    },
+    {
+        "key": "ctrl+left",
+        "command": "cursorWordLeft",
+        "when": "textInputFocus"
+    },
+    {
+        "key": "ctrl+shift+right",
+        "command": "cursorWordEndRightSelect",
+        "when": "textInputFocus"
+    },
+    {
+        "key": "ctrl+shift+left",
+        "command": "cursorWordLeftSelect",
+        "when": "textInputFocus"
+    },
+    {
+        "key": "ctrl+home",
+        "command": "cursorTop",
+        "when": "textInputFocus"
+    },
+    {
+        "key": "ctrl+end",
+        "command": "cursorBottom",
+        "when": "textInputFocus"
+    },
+    {
+        "key": "ctrl+shift+home",
+        "command": "cursorTopSelect",
+        "when": "textInputFocus"
+    },
+    {
+        "key": "ctrl+shift+end",
+        "command": "cursorBottomSelect",
+        "when": "textInputFocus"
+    },
+    // --- EDITOR: EDITING & FORMATTING ---
+    {
+        "key": "ctrl+backspace",
+        "command": "deleteWordLeft",
+        "when": "textInputFocus && !editorReadonly"
+    },
+    {
+        "key": "ctrl+delete",
+        "command": "deleteWordRight",
+        "when": "textInputFocus && !editorReadonly"
+    },
+    {
+        "key": "ctrl+m",
+        "command": "editor.action.commentLine",
+        "when": "editorTextFocus && !editorReadonly"
+    },
+    {
+        "key": "alt+ctrl+l",
+        "command": "multiCommand.superFormatPython",
+        "when": "editorTextFocus && editorLangId == 'python'"
+    },
+    {
+        "key": "alt+ctrl+l",
+        "command": "multiCommand.superFormatGo",
+        "when": "editorTextFocus && editorLangId == 'go'"
+    },
+    {
+        "key": "alt+ctrl+l",
+        "command": "editor.action.formatDocument",
+        "when": "editorTextFocus && editorLangId != 'python' && editorLangId != 'go'"
+    },
+    {
+        "key": "ctrl+b",
+        "command": "editor.action.revealDefinition",
+        "when": "editorHasDefinitionProvider"
+    },
+    // --- TERMINAL: CUSTOM SEQUENCES ---
+    {
+        "key": "ctrl+shift+right",
+        "command": "workbench.action.terminal.sendSequence",
+        "when": "terminalFocus",
+        "args": {
+            "text": "\u001b[1;6C"
+        }
+    },
+    {
+        "key": "ctrl+shift+left",
+        "command": "workbench.action.terminal.sendSequence",
+        "when": "terminalFocus",
+        "args": {
+            "text": "\u001b[1;6D"
+        }
+    },
+    {
+        "key": "ctrl+shift+home",
+        "command": "workbench.action.terminal.sendSequence",
+        "when": "terminalFocus",
+        "args": {
+            "text": "\u001b[1;6H"
+        }
+    },
+    {
+        "key": "ctrl+shift+end",
+        "command": "workbench.action.terminal.sendSequence",
+        "when": "terminalFocus",
+        "args": {
+            "text": "\u001b[1;6F"
+        }
+    },
+    {
+        "key": "ctrl+shift+c",
+        "command": "workbench.action.terminal.sendSequence",
+        "when": "terminalFocus",
+        "args": {
+            "text": "\u001b[67;5u"
+        }
+    },
+    {
+        "key": "ctrl+shift+v",
+        "command": "workbench.action.terminal.sendSequence",
+        "when": "terminalFocus",
+        "args": {
+            "text": "\u001b[86;5u"
+        }
+    },
+    {
+        "key": "ctrl+backspace",
+        "command": "workbench.action.terminal.sendSequence",
+        "when": "terminalFocus",
+        "args": {
+            "text": "\u001b[127;5u"
+        }
+    },
+    // --- WORKSPACE: FOCUS TOGGLE & UI ---
+    {
+        "key": "ctrl+u",
+        "command": "workbench.action.terminal.focus",
+        "when": "textInputFocus"
+    },
+    {
+        "key": "ctrl+u",
+        "command": "workbench.action.focusFirstEditorGroup",
+        "when": "terminalFocus"
+    },
+    {
+        "key": "ctrl+l",
+        "command": "workbench.action.terminal.clear",
+        "when": "terminalFocus"
+    },
+    {
+        "key": "cmd+q",
+        "command": "-workbench.action.quit"
+    },
+    {
+        "key": "ctrl+q",
+        "command": "-workbench.action.quit"
+    }
+]

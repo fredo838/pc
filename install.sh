@@ -144,3 +144,10 @@ sudo gedit /usr/share/applications/Alacritty.desktop # set StartupNotify=false
 
 ## Prefer Dark Mode:
 gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+
+## Firefox:
+# Set Firefox theme to light mode in Settings
+
+## Golang:
+sudo apt update
+sudo apt install golang-go --yes

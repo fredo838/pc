@@ -135,3 +135,8 @@ bindkey "\e[86;5u"  paste-selection
 bindkey "^?"        delete-selection-backspace
 bindkey "\e[3~"     delete-selection-delete
 bindkey "\e[127;5u" delete-selection-backspace
+
+exit_fix() {
+  exit
+}
+alias exit='exit_fix'
