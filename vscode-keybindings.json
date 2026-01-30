@@ -175,7 +175,7 @@
         "command": "workbench.action.terminal.sendSequence",
         "when": "terminalFocus",
         "args": {
-            "text": "\u001b[67;5u"
+            "text": "\u001b[99;6u"
         }
     },
     {
