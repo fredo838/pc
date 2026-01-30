@@ -151,3 +151,14 @@ gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
 ## Golang:
 sudo apt update
 sudo apt install golang-go --yes
+
+## QBitTorrent
+sudo apt install qbittorrent --yes
+
+## VLC
+sudo apt install vlc
+
+## Python
+sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt update
+sudo apt install python3.13 --yes

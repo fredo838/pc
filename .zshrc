@@ -128,7 +128,7 @@ bindkey "\e[1;5C"   forward-word-unselect
 bindkey "\e[1;5D"   backward-word-unselect
 
 # Clipboard
-bindkey "\e[67;5u"  copy-selection
+bindkey "\e[99;6u"  copy-selection
 bindkey "\e[86;5u"  paste-selection
 
 # Deletion
