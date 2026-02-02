@@ -140,3 +140,5 @@ exit_fix() {
   exit
 }
 alias exit='exit_fix'
+
+PATH=$HOME/.pulumi/bin:$PATH

@@ -132,7 +132,7 @@ chsh -s $(which zsh) + LOGOUT/LOGIN
 
 # Remove all Mac's keyboard shortcuts
 # It can be you even need to rebind some even though they are not active (wtf?) 
-cp .zshrc-mac ~/.zshrc
+cp .zshrc ~/.zshrc
 ### Mac:
 # load keymap.json in iTerm2 Profile > Keys
 # enable "Report keys using CSI u mode"
