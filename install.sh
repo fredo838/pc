@@ -137,11 +137,6 @@ cp .zshrc ~/.zshrc
 # load keymap.json in iTerm2 Profile > Keys
 # enable "Report keys using CSI u mode"
 
-## Alacritty Terminal
-sudo apt-get install npm
-npx alacritty-themes
-sudo gedit /usr/share/applications/Alacritty.desktop # set StartupNotify=false
-
 ## Prefer Dark Mode:
 gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
 
@@ -170,3 +165,5 @@ curl -fsSL https://get.pulumi.com | sh
 curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
 echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
 sudo apt-get update && sudo apt-get install google-cloud-cli --yes
+
+## Install ghostty
