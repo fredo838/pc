@@ -1,5 +1,4 @@
 [
-    // --- GENERAL: APPLICATION & FILE ---
     {
         "key": "ctrl+s",
         "command": "workbench.action.files.save"
@@ -16,7 +15,6 @@
         "key": "ctrl+shift+p",
         "command": "workbench.action.showCommands"
     },
-    // Search logic (Context-aware)
     {
         "key": "ctrl+f",
         "command": "actions.find",
@@ -27,8 +25,6 @@
         "command": "workbench.action.terminal.focusFind",
         "when": "terminalFocus"
     },
-    // --- SHARED: COPY & PASTE ---
-    // Standard keys (Restored)
     {
         "key": "ctrl+c",
         "command": "editor.action.clipboardCopyAction",
@@ -39,7 +35,6 @@
         "command": "editor.action.clipboardPasteAction",
         "when": "textInputFocus"
     },
-    // Shift variants (For both Editor and Terminal Sequences)
     {
         "key": "ctrl+shift+c",
         "command": "editor.action.clipboardCopyAction",
@@ -50,7 +45,6 @@
         "command": "editor.action.clipboardPasteAction",
         "when": "textInputFocus"
     },
-    // --- EDITOR: SELECTION & NAVIGATION ---
     {
         "key": "ctrl+shift+up",
         "command": "cursorUpSelect",
@@ -101,7 +95,6 @@
         "command": "cursorBottomSelect",
         "when": "textInputFocus"
     },
-    // --- EDITOR: EDITING & FORMATTING ---
     {
         "key": "ctrl+backspace",
         "command": "deleteWordLeft",
@@ -137,7 +130,6 @@
         "command": "editor.action.revealDefinition",
         "when": "editorHasDefinitionProvider"
     },
-    // --- TERMINAL: CUSTOM SEQUENCES ---
     {
         "key": "ctrl+shift+right",
         "command": "workbench.action.terminal.sendSequence",
@@ -194,7 +186,6 @@
             "text": "\u001b[127;5u"
         }
     },
-    // --- WORKSPACE: FOCUS TOGGLE & UI ---
     {
         "key": "ctrl+u",
         "command": "workbench.action.terminal.focus",
@@ -218,7 +209,6 @@
         "key": "ctrl+q",
         "command": "-workbench.action.quit"
     },
-    // --- WORKSPACE: CYCLE TERMINALS ---
     {
         "key": "ctrl+pageup",
         "command": "workbench.action.terminal.focusPrevious",
@@ -230,3 +220,4 @@
         "when": "terminalFocus"
     }
 ]
+
