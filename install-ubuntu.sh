@@ -172,4 +172,5 @@ sudo apt-get install google-cloud-cli-docker-credential-gcr --yes
 #                "europe-west1-docker.pkg.dev": "gcr"
 #        }
 # }
+
 ## Install ghostty

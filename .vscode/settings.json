@@ -1,3 +1,27 @@
 {
     "terminal.integrated.defaultProfile.linux": "zsh",
+    "multiCommand.commands": [
+        {
+            "command": "multiCommand.superFormatPython",
+            "sequence": [
+                "editor.action.formatDocument",
+                "ruff.applyAutofix",
+                "editor.action.organizeImports"
+            ]
+        },
+        {
+            "command": "multiCommand.superFormatGo",
+            "sequence": [
+                {
+                    "command": "editor.action.sourceAction",
+                    "args": {
+                        "kind": "source.fixAll.go",
+                        "apply": "first"
+                    }
+                },
+                "editor.action.organizeImports",
+                "editor.action.formatDocument"
+            ]
+        }
+    ],
 }
