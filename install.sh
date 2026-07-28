@@ -32,6 +32,14 @@ sudo apt-get update
 sudo apt-get upgrade
 sudo apt-get install code
 
+# VS Code keybindings & settings (applied globally, for ALL projects).
+# Both installers detect the OS and target the User-level config dir:
+#   Linux: ~/.config/Code/User/  |  macOS: ~/Library/Application Support/Code/User/
+# NOTE: install-keybindings.sh OVERWRITES keybindings.json — back up custom bindings first.
+#       install-settings.sh MERGES into settings.json (source keys win) and backs up first.
+bash ./install-keybindings.sh
+bash ./install-settings.sh
+
 
 # pip for python
 sudo apt-get install python3-pip
@@ -169,7 +177,22 @@ sudo apt-get install google-cloud-cli-docker-credential-gcr --yes
 #                "europe-west1-docker.pkg.dev": "gcr"
 #        }
 # }
-## Install ghostty
+
+## Ghostty terminal
+# No official apt repo — use the community-maintained .deb packages:
+#   https://github.com/mkasberg/ghostty-ubuntu
+# One-liner installer (auto-detects Ubuntu version + arch, downloads and installs the .deb):
+source /etc/os-release
+GHOSTTY_DEB_URL=$(curl -s https://api.github.com/repos/mkasberg/ghostty-ubuntu/releases/latest | \
+    grep -oP "https://[^\"]*ghostty_[^\"]*_$(dpkg --print-architecture)_${VERSION_ID}\.deb" | head -n1)
+curl -fsSL -o /tmp/ghostty.deb "$GHOSTTY_DEB_URL"
+sudo apt-get install -y /tmp/ghostty.deb
+rm -f /tmp/ghostty.deb
+# Verify:
+ghostty --version
+# Install this repo's config:
+mkdir -p ~/.config/ghostty
+cp ghostty-config ~/.config/ghostty/config
 
 
 # Chrome
