@@ -167,6 +167,41 @@ else
   echo "⚠ VS Code CLI 'code' not found; skipping extension installation."
 fi
 
+# The profile-scoped extensions.json (VS Code's own bookkeeping of which
+# extensions are enabled in this profile) can drift from what's actually on
+# disk in $EXTENSIONS_DIR -- e.g. after manual `code --install-extension`
+# calls or extension folders removed outside of this script. A stale entry
+# here breaks VS Code's extension loading entirely ("Unable to read file ...
+# for all extensions"). Prune any entry whose folder no longer exists so
+# reruns of this script always leave a working profile behind.
+if [ -f "$USER_DIR/extensions.json" ]; then
+  echo "Reconciling profile extensions manifest with $EXTENSIONS_DIR contents"
+  python3 - "$USER_DIR/extensions.json" <<'PY'
+import json
+import os
+import sys
+
+manifest_file = sys.argv[1]
+
+with open(manifest_file, "r", encoding="utf-8") as f:
+    entries = json.load(f)
+
+kept = []
+for entry in entries:
+    path = entry.get("location", {}).get("path")
+    if path and os.path.isdir(path):
+        kept.append(entry)
+    else:
+        identifier = entry.get("identifier", {}).get("id")
+        print(f"⚠ Removing stale extension entry: {identifier} -> {path}")
+
+if len(kept) != len(entries):
+    with open(manifest_file, "w", encoding="utf-8") as f:
+        json.dump(kept, f, indent=4)
+        f.write("\n")
+PY
+fi
+
 # Reconcile profile metadata after CLI operations because VS Code can rewrite
 # storage.json while installing extensions.
 python3 - "$STORAGE_FILE" "$PROFILE_NAME" "$PROFILE_ICON" <<'PY'
