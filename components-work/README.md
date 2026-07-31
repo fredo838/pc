@@ -7,7 +7,7 @@ Centrica-specific development tools and infrastructure for work projects.
 ### Version Control & Git
 | # | Component | Purpose |
 |---|-----------|---------|
-| 03 | **gitlab** | GitLab SSH configuration (Centrica GitLab) |
+| 03 | **gitlab** | GitLab SSH configuration + `glab` CLI (Centrica GitLab) |
 
 ### Infrastructure & AWS
 | # | Component | Purpose |
@@ -73,14 +73,18 @@ For Centrica work setup:
 
 ### GitLab (03-gitlab)
 
-Generates SSH key pair for Centrica GitLab:
+Generates SSH key pair for Centrica GitLab and installs/configures the `glab` CLI. Safe to re-run — it detects existing state and skips steps that are already done (no key regeneration, no reinstall, no re-auth):
 - Email: `frederik.bode@centrica.com`
 - Key location: `~/.ssh/id_ed25519_centrica`
+- Installs `glab` via `apt` if not already present
+- Configures `glab` to use the `ssh` git protocol
+- Prompts an interactive `glab auth login` if not already authenticated
 
-After running, add the public key to GitLab:
-1. Go to https://gitlab.com/profile/keys
+After running, add the public key to GitLab (if not already added):
+1. Go to https://gitlab.com/-/user_settings/ssh_keys
 2. Paste contents of `~/.ssh/id_ed25519_centrica.pub`
 3. Test: `ssh -T git@gitlab.com`
+4. Test glab: `glab auth status`
 
 ### AWS VPN Client (06-aws-vpn-client)
 

@@ -5,6 +5,8 @@
         }
     },
     "terminal.integrated.defaultProfile.linux": "zsh",
+    "chat.commandCenter.enabled": false,
+    "chat.disableAIFeatures": true,
     "multiCommand.commands": [
         {
             "command": "multiCommand.superFormatPython",
