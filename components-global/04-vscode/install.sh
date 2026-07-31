@@ -15,33 +15,10 @@ echo "deb [arch=amd64,arm64 signed-by=/etc/apt/keyrings/packages.microsoft.gpg] 
 sudo apt-get update
 sudo apt-get install -y code
 
-# Copy configuration files
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONFIG_DIR="$HOME/.config/Code/User"
+echo "✓ VSCode package installed"
 
-mkdir -p "$CONFIG_DIR"
-
-if [ -f "$SCRIPT_DIR/keybindings.json" ]; then
-    echo "Installing keybindings configuration..."
-    cp "$SCRIPT_DIR/keybindings.json" "$CONFIG_DIR/keybindings.json"
-    echo "✓ keybindings.json installed"
-fi
-
-if [ -f "$SCRIPT_DIR/settings.json" ]; then
-    echo "Installing settings configuration..."
-    cp "$SCRIPT_DIR/settings.json" "$CONFIG_DIR/settings.json"
-    echo "✓ settings.json installed"
-fi
-
-if [ -f "$SCRIPT_DIR/extensions.json" ]; then
-    echo "Installing extensions recommendations..."
-    cp "$SCRIPT_DIR/extensions.json" "$CONFIG_DIR/extensions.json"
-    echo "✓ extensions.json installed"
-fi
-
-echo "✓ VSCode installed successfully with configuration"
-echo ""
-echo "Configuration files installed to: $CONFIG_DIR"
-echo "Install recommended extensions in VSCode:"
-echo "  - Click Extensions icon (Ctrl+Shift+X)"
-echo "  - Click 'Show Recommended Extensions'"
+echo "Note: this script installs the VSCode package only."
+echo "Per-profile User configuration is managed in:"
+echo "  components-personal/04-vscode/"
+echo "  components-work/04-vscode/"
+echo "To install config for a profile, run the appropriate component's install.sh."

@@ -10,17 +10,29 @@ Configuration files have been organized into their corresponding component direc
 
 ### 04-vscode (VSCode)
 
-Configuration files for Visual Studio Code editor.
+This component installs the VS Code package only.
 
-| File | Location | Destination | Purpose |
-|------|----------|-------------|---------|
-| keybindings.json | `components-global/04-vscode/` | `~/.config/Code/User/keybindings.json` | Custom keyboard shortcuts for editor, terminal, and navigation |
-| settings.json | `components-global/04-vscode/` | `~/.config/Code/User/settings.json` | Editor settings, terminal config, and multi-command sequences |
-| extensions.json | `components-global/04-vscode/` | `~/.config/Code/User/extensions.json` | Recommended extensions list |
+Profile-specific VS Code user configuration is now stored separately in:
+- `components-personal/04-vscode/`
+- `components-work/04-vscode/`
 
-**Install with:**
+Use the appropriate profile install script to deploy user settings and recommended extensions:
+
+**Install package only:**
 ```bash
 cd components-global/04-vscode
+bash install.sh
+```
+
+**Install personal profile config:**
+```bash
+cd components-personal/04-vscode
+bash install.sh
+```
+
+**Install work profile config:**
+```bash
+cd components-work/04-vscode
 bash install.sh
 ```
 
@@ -64,13 +76,18 @@ When you run each component's `install.sh`, the configuration files are automati
 
 ### Manual Installation
 
-If needed, you can manually install config files:
+If needed, you can manually install config files for a profile:
 
 ```bash
-# VSCode
-cp components-global/04-vscode/keybindings.json ~/.config/Code/User/
-cp components-global/04-vscode/settings.json ~/.config/Code/User/
-cp components-global/04-vscode/extensions.json ~/.config/Code/User/
+# Personal VSCode profile
+cp components-personal/04-vscode/keybindings.json ~/.vscode-personal/User/keybindings.json
+cp components-personal/04-vscode/settings.json ~/.vscode-personal/User/settings.json
+cp components-personal/04-vscode/extensions.json ~/.vscode-personal/User/extensions.json
+
+# Work VSCode profile
+cp components-work/04-vscode/keybindings.json ~/.vscode-work/User/keybindings.json
+cp components-work/04-vscode/settings.json ~/.vscode-work/User/settings.json
+cp components-work/04-vscode/extensions.json ~/.vscode-work/User/extensions.json
 
 # Zsh
 cp components-global/12-zsh/.zshrc ~/.zshrc
@@ -137,10 +154,15 @@ components-global/
 After installation, expected file permissions:
 
 ```bash
-# VSCode configs (user readable/writable)
-~/.config/Code/User/keybindings.json  (644)
-~/.config/Code/User/settings.json     (644)
-~/.config/Code/User/extensions.json   (644)
+# Personal VSCode profile config
+~/.vscode-personal/User/keybindings.json  (644)
+~/.vscode-personal/User/settings.json     (644)
+~/.vscode-personal/User/extensions.json   (644)
+
+# Work VSCode profile config
+~/.vscode-work/User/keybindings.json  (644)
+~/.vscode-work/User/settings.json     (644)
+~/.vscode-work/User/extensions.json   (644)
 
 # Zsh config
 ~/.zshrc                               (644)
@@ -156,8 +178,15 @@ After installation, expected file permissions:
 To update a configuration after installation:
 
 ```bash
-# From the component directory
-cp keybindings.json ~/.config/Code/User/
+# Personal VSCode profile
+cp keybindings.json ~/.vscode-personal/User/
+cp settings.json ~/.vscode-personal/User/
+cp extensions.json ~/.vscode-personal/User/
+
+# Work VSCode profile
+cp keybindings.json ~/.vscode-work/User/
+cp settings.json ~/.vscode-work/User/
+cp extensions.json ~/.vscode-work/User/
 ```
 
 ### Version Control
@@ -201,12 +230,15 @@ You can keep or remove the original files from the project root as needed.
 
 1. Verify correct installation location
    ```bash
-   # VSCode
-   ls ~/.config/Code/User/
-   
+   # Personal VSCode profile
+   ls ~/.vscode-personal/User/
+
+   # Work VSCode profile
+   ls ~/.vscode-work/User/
+
    # Ghostty
    ls ~/.config/ghostty/
-   
+
    # Zsh
    cat ~/.zshrc | head -5
    ```
@@ -218,7 +250,8 @@ You can keep or remove the original files from the project root as needed.
 
 3. Check for syntax errors in JSON files:
    ```bash
-   python3 -m json.tool ~/.config/Code/User/keybindings.json
+   python3 -m json.tool ~/.vscode-personal/User/keybindings.json
+   python3 -m json.tool ~/.vscode-work/User/keybindings.json
    ```
 
 ### Conflicts with existing configs
@@ -233,11 +266,13 @@ If you already have configurations:
 If configs can't be read:
 ```bash
 # Fix permissions
-chmod 644 ~/.config/Code/User/*
+chmod 644 ~/.vscode-personal/User/*
+chmod 644 ~/.vscode-work/User/*
 chmod 644 ~/.zshrc
 chmod 644 ~/.config/ghostty/config
 
 # Ensure directories exist
-mkdir -p ~/.config/Code/User
+mkdir -p ~/.vscode-personal/User
+mkdir -p ~/.vscode-work/User
 mkdir -p ~/.config/ghostty
 ```

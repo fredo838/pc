@@ -251,14 +251,24 @@ bash components-global/01-initial/install.sh
 
 ### Update Configurations
 
-Configuration files are stored with their components. Edit and re-run install:
+Configuration files are stored with their components. Edit and re-run install for the appropriate profile:
 
 ```bash
-# Edit VSCode keybindings
-nano components-global/04-vscode/keybindings.json
+# Edit personal VSCode config
+nano components-personal/04-vscode/keybindings.json
 
-# Re-run install to update
-cd components-global/04-vscode && bash install.sh
+# Re-run personal profile install
+cd components-personal/04-vscode && bash install.sh
+```
+
+Or for work:
+
+```bash
+# Edit work VSCode config
+nano components-work/04-vscode/keybindings.json
+
+# Re-run work profile install
+cd components-work/04-vscode && bash install.sh
 ```
 
 ## 🚨 Important Notes
@@ -269,10 +279,12 @@ cd components-global/04-vscode && bash install.sh
 - Requires logout/login to become default shell
 - Or run: `exec zsh`
 
-**VSCode Profiles** (components-global/04-vscode)
-- Work projects use: `~/.vscode-work`
-- Personal projects use: `~/.vscode-personal`
-- Automatically selected by `code` command in `.zshrc`
+**VSCode Profiles**
+- The package install is handled by `components-global/04-vscode`
+- Personal profile config is in `components-personal/04-vscode/`
+- Work profile config is in `components-work/04-vscode/`
+- The `.zshrc` wrapper should still auto-select `~/.vscode-work` or `~/.vscode-personal`
+  based on project path
 
 **AWS VPN** (components-work/06-aws-vpn-client)
 - Work-only component

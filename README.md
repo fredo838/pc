@@ -120,21 +120,27 @@ shortcuts and terminal sequences that line up with the `.zshrc` clipboard/select
 setup (e.g. `Ctrl+Shift+C/V` in the integrated terminal, word-wise navigation, format
 shortcuts).
 
-Install them with the helper script, which detects your OS and copies the file into
-the correct VS Code user directory:
+Install VS Code package with:
 
 ```bash
-./install-keybindings.sh
+bash components-global/04-vscode/install.sh
 ```
 
-Destination paths:
+User configuration is managed separately by profile-specific components:
+- `components-personal/04-vscode/`
+- `components-work/04-vscode/`
 
-- **Linux:** `~/.config/Code/User/keybindings.json`
-- **macOS:** `~/Library/Application Support/Code/User/keybindings.json`
+After installing the package, apply profile configuration with:
 
-> [!WARNING]
-> This **overwrites** your existing `keybindings.json`. Back up your current file
-> first if you have custom bindings you want to keep.
+```bash
+cd components-personal/04-vscode && bash install.sh
+# or
+cd components-work/04-vscode && bash install.sh
+```
+
+Profile config is deployed into:
+- `~/.vscode-personal/User/`
+- `~/.vscode-work/User/`
 
 Some bindings reference the `multiCommand.superFormatPython` / `superFormatGo`
 commands, which require the **multi-command** VS Code extension and corresponding

@@ -16,9 +16,12 @@ bash install.sh
 ```
 
 This will:
-1. Add Microsoft GPG key and VSCode repository
-2. Install VSCode package
-3. Copy configuration files to `~/.config/Code/User/`
+1. Add Microsoft GPG key and VS Code repository
+2. Install the VS Code package
+
+This script installs VS Code only. User settings and recommended extensions are managed in per-profile components:
+- `components-personal/04-vscode/`
+- `components-work/04-vscode/`
 
 ## Configuration Files
 
@@ -80,13 +83,13 @@ Recommended extensions:
 
 ## Configuration Locations
 
-Configuration files are stored at:
-```
-~/.config/Code/User/
-├── keybindings.json
-├── settings.json
-└── extensions.json
-```
+The installer in this component is package-only and does not deploy user settings.
+
+Profile-specific configuration files are managed here:
+- `components-personal/04-vscode/`
+- `components-work/04-vscode/`
+
+Each profile's install script copies files into its own profile directory under `~/.vscode-personal` or `~/.vscode-work`.
 
 ## Recommended Extensions
 
@@ -104,7 +107,11 @@ Currently recommended:
 
 ### Adding More Keybindings
 
-Edit `~/.config/Code/User/keybindings.json`:
+Edit the profile user settings in the appropriate profile folder:
+- `~/.vscode-personal/User/keybindings.json`
+- `~/.vscode-work/User/keybindings.json`
+
+Example:
 
 ```json
 {
@@ -116,7 +123,11 @@ Edit `~/.config/Code/User/keybindings.json`:
 
 ### Adding More Settings
 
-Edit `~/.config/Code/User/settings.json`:
+Edit the profile user settings in the appropriate profile folder:
+- `~/.vscode-personal/User/settings.json`
+- `~/.vscode-work/User/settings.json`
+
+Example:
 
 ```json
 {

@@ -134,11 +134,17 @@ components-global/
 
 ## 🔑 Configuration Files
 
-Configuration files are included with their components:
+The VS Code component installs the VS Code package only.
+
+Profile-specific configuration files are managed in:
+- `components-personal/04-vscode/`
+- `components-work/04-vscode/`
+
+The `components-global/04-vscode/` component no longer deploys user settings to `~/.config/Code/User/`.
 
 | Component | Config Files | Destination |
 |-----------|--------------|-------------|
-| vscode | keybindings.json, settings.json, extensions.json | `~/.config/Code/User/` |
+| vscode | `install.sh` | VS Code package install only |
 | zsh | .zshrc, iterm2-keymap.json | `~/.zshrc`, iTerm2 Preferences |
 | ghostty | ghostty-config | `~/.config/ghostty/config` |
 

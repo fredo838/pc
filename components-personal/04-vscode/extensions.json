@@ -8,7 +8,8 @@
         "njpwerner.autodocstring",
         "redhat.vscode-yaml",
         "teticio.python-envy",
-        "lukasramroth.fold-python-comments"
+        "lukasramroth.fold-python-comments",
+        "anthropic.claude-code"
     ],
     "unwantedRecommendations": [
         "ms-python.vscode-python-envs"

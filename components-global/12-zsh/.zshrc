@@ -157,15 +157,23 @@ code() {
 
   case "$target" in
     /Users/fred/centrica/*|/Users/fred/centrica)
-      command code --user-data-dir ~/.vscode-work --extensions-dir ~/.vscode-work-ext "$@"
+      command code --user-data-dir ~/.vscode-work --extensions-dir ~/.vscode-work-ext --profile Work "$@"
       ;;
     /Users/fred/projects/*|/Users/fred/projects)
-      command code --user-data-dir ~/.vscode-personal --extensions-dir ~/.vscode-personal-ext "$@"
+      command code --user-data-dir ~/.vscode-personal --extensions-dir ~/.vscode-personal-ext --profile Personal "$@"
       ;;
     *)
       command code "$@"
       ;;
   esac
+}
+
+code-work() {
+  command code --user-data-dir ~/.vscode-work --extensions-dir ~/.vscode-work-ext --profile Work "$@"
+}
+
+code-personal() {
+  command code --user-data-dir ~/.vscode-personal --extensions-dir ~/.vscode-personal-ext --profile Personal "$@"
 }
 
 PATH=$HOME/.pulumi/bin:$PATH

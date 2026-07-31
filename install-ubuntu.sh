@@ -24,17 +24,12 @@ cat ~/.ssh/id_ed25519_centrica.pub # add this in gitlab
 
 
 ## VSCode:
-wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg
-sudo install -D -o root -g root -m 644 packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg
-echo "deb [arch=amd64,arm64 signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-sudo apt-get update
-sudo apt-get upgrade
-sudo apt-get install code
-
+bash "$SCRIPT_DIR/components-global/04-vscode/install.sh"
 
 # pip for python
-sudo apt-get install python3-pip
+sudo apt-get install -y python3-pip
 
 ## Mozilla 
 # Login to account
@@ -50,10 +45,11 @@ sudo apt-get install python3-pip
 
 ## AWS VPN Client
 wget -qO- https://d20adtppz83p9s.cloudfront.net/GTK/latest/debian-repo/awsvpnclient_public_key.asc | sudo tee /etc/apt/trusted.gpg.d/awsvpnclient_public_key.asc
-echo "deb [arch=amd64] https://d20adtppz83p9s.cloudfront.net/GTK/latest/debian-repo ubuntu main" | sudo tee /etc/apt/sources.list.d/aws-vpn-client.listecho "deb [arch=amd64] https://d20adtppz83p9s.cloudfront.net/GTK/latest/debian-repo ubuntu main" | sudo tee /etc/apt/sources.list.d/aws-vpn-client.list
+
+echo "deb [arch=amd64] https://d20adtppz83p9s.cloudfront.net/GTK/latest/debian-repo ubuntu main" | sudo tee /etc/apt/sources.list.d/aws-vpn-client.list > /dev/null
 sudo apt-get update
 sudo apt-get upgrade
-sudo apt-get install awsvpnclient
+sudo apt-get install -y awsvpnclient
 
 ## AWS cli
 mkdir awscli
