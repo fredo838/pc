@@ -156,10 +156,10 @@ code() {
   fi
 
   case "$target" in
-    /Users/fred/centrica/*|/Users/fred/centrica)
+    /home/fred/centrica/*|/home/fred/centrica)
       command code --user-data-dir ~/.vscode-work --extensions-dir ~/.vscode-work-ext --profile Work "$@"
       ;;
-    /Users/fred/projects/*|/Users/fred/projects)
+    /home/fred/projects/*|/home/fred/projects)
       command code --user-data-dir ~/.vscode-personal --extensions-dir ~/.vscode-personal-ext --profile Personal "$@"
       ;;
     *)

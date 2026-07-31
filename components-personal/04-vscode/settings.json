@@ -1,4 +1,9 @@
 {
+    "terminal.integrated.profiles.linux": {
+        "zsh": {
+            "path": "zsh"
+        }
+    },
     "terminal.integrated.defaultProfile.linux": "zsh",
     "multiCommand.commands": [
         {

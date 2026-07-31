@@ -8,7 +8,12 @@ sudo apt-get update
 sudo apt-get install -y zsh
 
 # Set zsh as default shell
-chsh -s $(which zsh)
+ZSH_PATH="$(command -v zsh)"
+if [ -n "$ZSH_PATH" ]; then
+    chsh -s "$ZSH_PATH"
+else
+    echo "⚠ Could not find zsh in PATH; skipping default shell change"
+fi
 
 # Copy configuration files
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

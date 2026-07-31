@@ -16,7 +16,7 @@ mkdir -p "$USER_ROOT"
 if command -v code >/dev/null 2>&1; then
   mkdir -p "$EXTENSIONS_DIR"
   # Ensure the named profile exists in this user-data-dir.
-  env NODE_NO_WARNINGS=1 command code --user-data-dir "$PROFILE_DIR" --extensions-dir "$EXTENSIONS_DIR" --profile "$PROFILE_NAME" --list-extensions >/dev/null 2>&1 || true
+  NODE_NO_WARNINGS=1 code --user-data-dir "$PROFILE_DIR" --extensions-dir "$EXTENSIONS_DIR" --profile "$PROFILE_NAME" --list-extensions >/dev/null 2>&1 || true
 fi
 
 PROFILE_DATA="$(python3 - "$STORAGE_FILE" "$PROFILE_NAME" "$PROFILE_ICON" <<'PY'
@@ -139,7 +139,7 @@ if command -v code >/dev/null 2>&1; then
   | while IFS= read -r extension; do
     if [ -n "$extension" ]; then
       echo "Installing extension: $extension"
-      output="$(env NODE_NO_WARNINGS=1 command code --user-data-dir "$PROFILE_DIR" --extensions-dir "$EXTENSIONS_DIR" --profile "$PROFILE_NAME" --install-extension "$extension" --force 2>&1)" || true
+      output="$(NODE_NO_WARNINGS=1 code --user-data-dir "$PROFILE_DIR" --extensions-dir "$EXTENSIONS_DIR" --profile "$PROFILE_NAME" --install-extension "$extension" --force 2>&1)" || true
       if printf '%s\n' "$output" | grep -qE 'built-in extension .* cannot be downgraded|Failed Installing Extensions'; then
         echo "⚠ Skipping built-in/downgrade issue for extension: $extension"
       elif [ -n "$output" ]; then
