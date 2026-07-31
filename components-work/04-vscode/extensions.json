@@ -12,6 +12,8 @@
         "GitHub.copilot"
     ],
     "unwantedRecommendations": [
-        "ms-python.vscode-python-envs"
+        "ms-python.vscode-python-envs",
+        "ms-python.vscode-pylance",
+        "ms-python.debugpy"
     ]
 }

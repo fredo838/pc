@@ -147,6 +147,22 @@ if command -v code >/dev/null 2>&1; then
       fi
     fi
   done
+
+  # ms-python.python ships an extensionPack (vscode-pylance, debugpy,
+  # vscode-python-envs) that VS Code auto-installs alongside it. This
+  # profile only wants the core Python extension: Ty is the language
+  # server, Ruff formats/lints, and we don't use VS Code's debugger or
+  # the newer environment-manager UI. Remove the unwanted pack members
+  # after install since --install-extension has no flag to skip them.
+  echo ""
+  echo "Removing extensions bundled by ms-python.python's extension pack:"
+  for ext in ms-python.vscode-pylance ms-python.debugpy ms-python.vscode-python-envs; do
+    if NODE_NO_WARNINGS=1 code --user-data-dir "$PROFILE_DIR" --extensions-dir "$EXTENSIONS_DIR" --profile "$PROFILE_NAME" --list-extensions 2>/dev/null | grep -qix "$ext"; then
+      echo "Uninstalling extension: $ext"
+      NODE_NO_WARNINGS=1 code --user-data-dir "$PROFILE_DIR" --extensions-dir "$EXTENSIONS_DIR" --profile "$PROFILE_NAME" --uninstall-extension "$ext" >/dev/null 2>&1 \
+        || echo "⚠ Failed to uninstall $ext"
+    fi
+  done
 else
   echo "⚠ VS Code CLI 'code' not found; skipping extension installation."
 fi
