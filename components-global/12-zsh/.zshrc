@@ -160,7 +160,7 @@ code() {
       command code --user-data-dir ~/.vscode-work --extensions-dir ~/.vscode-work-ext --profile Work "$@"
       ;;
     /home/fred/projects/*|/home/fred/projects)
-      command code --user-data-dir ~/.vscode-personal --extensions-dir ~/.vscode-personal-ext --profile Personal "$@"
+      command code-insiders --user-data-dir ~/.vscode-personal-insiders --extensions-dir ~/.vscode-personal-insiders-ext --profile Personal --enable-proposed-api=local.bode-claude "$@"
       ;;
     *)
       command code "$@"
@@ -173,7 +173,7 @@ code-work() {
 }
 
 code-personal() {
-  command code --user-data-dir ~/.vscode-personal --extensions-dir ~/.vscode-personal-ext --profile Personal "$@"
+  command code-insiders --user-data-dir ~/.vscode-personal-insiders --extensions-dir ~/.vscode-personal-insiders-ext --profile Personal --enable-proposed-api=local.bode-claude "$@"
 }
 
 PATH=$HOME/.pulumi/bin:$PATH

@@ -19,7 +19,6 @@ Tools and configurations used regardless of work or personal context.
 
 ### Development Tools
 - **01-initial** - Base system dependencies
-- **04-vscode** - Visual Studio Code with custom keybindings
 - **05-python-pip** - Python package manager
 - **08-kubectl** - Kubernetes CLI
 - **09-python-config** - Python configuration (.netrc, pip.conf, .pypirc)
@@ -47,6 +46,9 @@ Tools and configurations used regardless of work or personal context.
 
 Work-related tools for Centrica development.
 
+### Editor
+- **04-vscode** - Visual Studio Code (Stable) with custom keybindings and the Work profile
+
 ### Version Control & Git
 - **03-gitlab** - GitLab SSH configuration (Centrica)
 
@@ -71,6 +73,9 @@ See [components-work/README.md](components-work/README.md) for details.
 ## 👤 Components-Personal
 
 Personal projects, browsing, and hobbies.
+
+### Editor
+- **04-vscode** - Visual Studio Code Insiders with custom keybindings and the Personal profile (Insiders is required for proposed-API extensions like `bode-claude`)
 
 ### Version Control & Git
 - **02-github** - GitHub SSH configuration (personal account)
@@ -148,7 +153,8 @@ bash install-all.sh
 | Purpose | Components | Location |
 |---------|-----------|----------|
 | **Version Control** | GitHub, GitLab | personal, work |
-| **Development** | VSCode, Python, Go, kubectl | global |
+| **Editor** | VSCode Insiders (personal), VSCode Stable (work) | personal, work |
+| **Development** | Python, Go, kubectl | global |
 | **Shell & Terminal** | Zsh, Ghostty | global |
 | **Infrastructure** | AWS, gcloud, Pulumi | work (AWS), global (gcloud/Pulumi) |
 | **Cloud & DevOps** | kubectl, gcloud, Pulumi | global |
@@ -174,7 +180,7 @@ All three directories
 
 Configuration files are organized with their components:
 
-- **04-vscode**: `keybindings.json`, `settings.json`, `extensions.json`
+- **04-vscode** (personal and work, separately): `keybindings.json`, `settings.json`, `extensions.json`
 - **12-zsh**: `.zshrc`, `iterm2-keymap.json`
 - **20-ghostty**: `ghostty-config`
 
@@ -190,13 +196,13 @@ For a fresh Ubuntu setup:
 ### Phase 2: Development Environment (Choose based on context)
 
 **For work (Centrica):**
-1. components-global/**04-vscode** - Code editor
+1. components-work/**04-vscode** - Code editor (Stable)
 2. components-work/**03-gitlab** - GitLab SSH keys
 3. components-work/**06-aws-vpn-client** - Work VPN
 4. components-work/**07-aws-cli** - AWS tooling
 
 **For personal projects:**
-1. components-global/**04-vscode** - Code editor
+1. components-personal/**04-vscode** - Code editor (Insiders)
 2. components-personal/**02-github** - GitHub SSH keys
 
 ### Phase 3: Development Tools (For all)
@@ -227,7 +233,8 @@ Each component has detailed documentation:
 
 ```bash
 # View component README
-cat components-global/04-vscode/README.md
+cat components-personal/04-vscode/README.md
+cat components-work/04-vscode/README.md
 cat components-work/03-gitlab/README.md
 cat components-personal/02-github/README.md
 ```
@@ -280,11 +287,12 @@ cd components-work/04-vscode && bash install.sh
 - Or run: `exec zsh`
 
 **VSCode Profiles**
-- The package install is handled by `components-global/04-vscode`
-- Personal profile config is in `components-personal/04-vscode/`
-- Work profile config is in `components-work/04-vscode/`
-- The `.zshrc` wrapper should still auto-select `~/.vscode-work` or `~/.vscode-personal`
-  based on project path
+- Personal projects use VS Code **Insiders**; work projects use VS Code **Stable** — each
+  installs its own package, no shared/global VS Code component exists anymore
+- Personal profile + package install is in `components-personal/04-vscode/`
+- Work profile + package install is in `components-work/04-vscode/`
+- The `.zshrc` wrapper auto-selects `~/.vscode-work` (Stable) or `~/.vscode-personal-insiders`
+  (Insiders, with `--enable-proposed-api=local.bode-claude`) based on project path
 
 **AWS VPN** (components-work/06-aws-vpn-client)
 - Work-only component
@@ -317,7 +325,7 @@ git commit -m "Installed and customized installation components"
 | 01-initial | ✓ | - | - | Base dependencies |
 | 02-github | - | - | ✓ | Personal Git SSH |
 | 03-gitlab | - | ✓ | - | Work Git SSH |
-| 04-vscode | ✓ | - | - | Code editor |
+| 04-vscode | - | ✓ | ✓ | Code editor (Stable for work, Insiders for personal — separate installs) |
 | 05-python-pip | ✓ | - | - | Python package manager |
 | 06-aws-vpn-client | - | ✓ | - | Work VPN |
 | 07-aws-cli | - | ✓ | - | AWS tools |

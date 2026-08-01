@@ -12,7 +12,6 @@ Development tools, infrastructure, and settings used in all contexts (work and p
 ### Development & Coding
 | # | Component | Purpose |
 |---|-----------|---------|
-| 04 | **vscode** | Visual Studio Code editor with custom keybindings |
 | 05 | **python-pip** | Python package manager |
 | 12 | **zsh** | Zsh shell with advanced keybindings |
 | 13 | **golang** | Go programming language |
@@ -71,7 +70,6 @@ bash install.sh
 Each component has detailed documentation:
 
 - [01-initial/install.sh](01-initial/install.sh) - Base system setup
-- [04-vscode/README.md](04-vscode/README.md) - VSCode with keybindings
 - [05-python-pip/install.sh](05-python-pip/install.sh) - Python pip
 - [08-kubectl/install.sh](08-kubectl/install.sh) - Kubernetes
 - [09-python-config/install.sh](09-python-config/install.sh) - Python configs
@@ -91,12 +89,6 @@ Each component has detailed documentation:
 components-global/
 ├── 01-initial/
 │   └── install.sh
-├── 04-vscode/
-│   ├── install.sh
-│   ├── README.md
-│   ├── keybindings.json
-│   ├── settings.json
-│   └── extensions.json
 ├── 05-python-pip/
 │   └── install.sh
 ├── 08-kubectl/
@@ -134,17 +126,13 @@ components-global/
 
 ## 🔑 Configuration Files
 
-The VS Code component installs the VS Code package only.
-
-Profile-specific configuration files are managed in:
-- `components-personal/04-vscode/`
-- `components-work/04-vscode/`
-
-The `components-global/04-vscode/` component no longer deploys user settings to `~/.config/Code/User/`.
+VS Code is no longer a global component. Each profile installs its own VS Code
+channel and package alongside its configuration:
+- `components-personal/04-vscode/` - installs `code-insiders` + the Personal profile
+- `components-work/04-vscode/` - installs `code` (Stable) + the Work profile
 
 | Component | Config Files | Destination |
 |-----------|--------------|-------------|
-| vscode | `install.sh` | VS Code package install only |
 | zsh | .zshrc, iterm2-keymap.json | `~/.zshrc`, iTerm2 Preferences |
 | ghostty | ghostty-config | `~/.config/ghostty/config` |
 
@@ -155,27 +143,23 @@ See [CONFIG-FILES.md](CONFIG-FILES.md) for complete details.
 For a fresh Ubuntu system:
 
 1. **01-initial** - System dependencies (required first)
-2. **04-vscode** - Code editor
-3. **12-zsh** - Shell (requires logout/login)
-4. **05-python-pip** - Python
-5. **16-python313** - Python 3.13
-6. **13-golang** - Go
-7. **08-kubectl** - Kubernetes
-8. **09-python-config** - Python configs
-9. **10-gnome-settings** - Desktop tweaks
-10. **17-pulumi** - Infrastructure as Code
-11. **18-gcloud** - Google Cloud SDK
-12. **20-ghostty** - Terminal emulator
-13. **14-qbittorrent** - Torrent client
-14. **15-vlc** - Media player
+2. **12-zsh** - Shell (requires logout/login)
+3. **05-python-pip** - Python
+4. **16-python313** - Python 3.13
+5. **13-golang** - Go
+6. **08-kubectl** - Kubernetes
+7. **09-python-config** - Python configs
+8. **10-gnome-settings** - Desktop tweaks
+9. **17-pulumi** - Infrastructure as Code
+10. **18-gcloud** - Google Cloud SDK
+11. **20-ghostty** - Terminal emulator
+12. **14-qbittorrent** - Torrent client
+13. **15-vlc** - Media player
+
+VS Code itself is installed per-profile: run `components-personal/04-vscode/install.sh`
+and/or `components-work/04-vscode/install.sh` (see their READMEs).
 
 ## ⚙️ Key Configuration
-
-### VSCode
-- Custom keybindings for editor and terminal
-- Settings for Python and Go formatting
-- Recommended extensions list
-- Multiple profiles (work/personal)
 
 ### Zsh
 - Advanced clipboard support
@@ -203,13 +187,6 @@ The shell won't become default until you log out and log back in. Or run immedia
 ```bash
 exec zsh
 ```
-
-### After Installing VSCode (04-vscode)
-
-1. Open VSCode: `code`
-2. Install recommended extensions (Ctrl+Shift+X)
-3. Test keybindings
-4. Review settings if needed
 
 ### After Installing Python (05, 16)
 
@@ -261,7 +238,8 @@ Verify installations after completing:
 ```bash
 # Check versions
 zsh --version
-code --version
+code --version          # Stable (work)
+code-insiders --version # Insiders (personal)
 python3 --version
 python3.13 --version
 go version
@@ -307,14 +285,16 @@ Before running, review and customize:
 
 ```bash
 # View script
-cat 04-vscode/install.sh
+cat 01-initial/install.sh
 
 # Edit if needed
-nano 04-vscode/install.sh
+nano 01-initial/install.sh
 
 # Then run
-bash 04-vscode/install.sh
+bash 01-initial/install.sh
 ```
+
+(VS Code's scripts live in `components-personal/04-vscode/` and `components-work/04-vscode/` — see those component READMEs.)
 
 ### Update Configuration Files
 
@@ -324,12 +304,12 @@ Edit `.zshrc`, keybindings, or other configs:
 # Edit zsh config
 nano 12-zsh/.zshrc
 
-# Edit VSCode keybindings
-nano 04-vscode/keybindings.json
+# Edit VSCode keybindings (personal or work profile)
+nano ../components-personal/04-vscode/keybindings.json
 
 # Re-run install to update system files
 bash 12-zsh/install.sh
-bash 04-vscode/install.sh
+bash ../components-personal/04-vscode/install.sh
 ```
 
 ## 📞 Troubleshooting

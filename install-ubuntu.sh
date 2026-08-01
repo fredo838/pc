@@ -26,7 +26,9 @@ cat ~/.ssh/id_ed25519_centrica.pub # add this in gitlab
 ## VSCode:
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-bash "$SCRIPT_DIR/components-global/04-vscode/install.sh"
+# Each profile installs its own VS Code channel/package (work: Stable, personal: Insiders).
+bash "$SCRIPT_DIR/components-work/04-vscode/install.sh"
+bash "$SCRIPT_DIR/components-personal/04-vscode/install.sh"
 
 # pip for python
 sudo apt-get install -y python3-pip

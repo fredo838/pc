@@ -8,29 +8,18 @@ Configuration files have been organized into their corresponding component direc
 
 ## Component-Specific Configs
 
-### 04-vscode (VSCode)
+### VSCode
 
-This component installs the VS Code package only.
+VS Code is **not** a global component — each profile installs its own channel and
+package alongside its configuration:
 
-Profile-specific VS Code user configuration is now stored separately in:
-- `components-personal/04-vscode/`
-- `components-work/04-vscode/`
-
-Use the appropriate profile install script to deploy user settings and recommended extensions:
-
-**Install package only:**
-```bash
-cd components-global/04-vscode
-bash install.sh
-```
-
-**Install personal profile config:**
+**Personal (installs `code-insiders` + Personal profile):**
 ```bash
 cd components-personal/04-vscode
 bash install.sh
 ```
 
-**Install work profile config:**
+**Work (installs `code` Stable + Work profile):**
 ```bash
 cd components-work/04-vscode
 bash install.sh
@@ -44,6 +33,10 @@ Configuration files for Zsh shell and terminal keybindings.
 |------|----------|-------------|---------|
 | .zshrc | `components-global/12-zsh/` | `~/.zshrc` | Main shell configuration with keybindings, clipboard, and aliases |
 | iterm2-keymap.json | `components-global/12-zsh/` | Manual (iTerm2 Preferences) | iTerm2 key mappings for macOS |
+
+Note: the `code()` / `code-personal()` shell functions defined here launch VS Code
+Insiders with `--enable-proposed-api=local.bode-claude`, required by the `bode-claude`
+extension's Chat Participant integration.
 
 **Install with:**
 ```bash
@@ -79,10 +72,10 @@ When you run each component's `install.sh`, the configuration files are automati
 If needed, you can manually install config files for a profile:
 
 ```bash
-# Personal VSCode profile
-cp components-personal/04-vscode/keybindings.json ~/.vscode-personal/User/keybindings.json
-cp components-personal/04-vscode/settings.json ~/.vscode-personal/User/settings.json
-cp components-personal/04-vscode/extensions.json ~/.vscode-personal/User/extensions.json
+# Personal VSCode Insiders profile
+cp components-personal/04-vscode/keybindings.json ~/.vscode-personal-insiders/User/keybindings.json
+cp components-personal/04-vscode/settings.json ~/.vscode-personal-insiders/User/settings.json
+cp components-personal/04-vscode/extensions.json ~/.vscode-personal-insiders/User/extensions.json
 
 # Work VSCode profile
 cp components-work/04-vscode/keybindings.json ~/.vscode-work/User/keybindings.json
@@ -107,7 +100,7 @@ cp components-global/20-ghostty/ghostty-config ~/.config/ghostty/config
 These components work together and should be installed in order:
 
 1. **12-zsh** → Base shell configuration
-2. **04-vscode** → Editor with terminal integration
+2. **components-personal/04-vscode** or **components-work/04-vscode** → Editor with terminal integration
 3. **20-ghostty** → Terminal with zsh
 
 The keybindings in all three are synchronized for consistent behavior.
@@ -128,12 +121,6 @@ The following escape sequences are consistent across components:
 
 ```
 components-global/
-├── 04-vscode/
-│   ├── install.sh
-│   ├── README.md
-│   ├── keybindings.json
-│   ├── settings.json
-│   └── extensions.json
 ├── 12-zsh/
 │   ├── install.sh
 │   ├── README.md
@@ -154,10 +141,10 @@ components-global/
 After installation, expected file permissions:
 
 ```bash
-# Personal VSCode profile config
-~/.vscode-personal/User/keybindings.json  (644)
-~/.vscode-personal/User/settings.json     (644)
-~/.vscode-personal/User/extensions.json   (644)
+# Personal VSCode Insiders profile config
+~/.vscode-personal-insiders/User/keybindings.json  (644)
+~/.vscode-personal-insiders/User/settings.json     (644)
+~/.vscode-personal-insiders/User/extensions.json   (644)
 
 # Work VSCode profile config
 ~/.vscode-work/User/keybindings.json  (644)
@@ -178,10 +165,10 @@ After installation, expected file permissions:
 To update a configuration after installation:
 
 ```bash
-# Personal VSCode profile
-cp keybindings.json ~/.vscode-personal/User/
-cp settings.json ~/.vscode-personal/User/
-cp extensions.json ~/.vscode-personal/User/
+# Personal VSCode Insiders profile
+cp keybindings.json ~/.vscode-personal-insiders/User/
+cp settings.json ~/.vscode-personal-insiders/User/
+cp extensions.json ~/.vscode-personal-insiders/User/
 
 # Work VSCode profile
 cp keybindings.json ~/.vscode-work/User/
@@ -192,7 +179,7 @@ cp extensions.json ~/.vscode-work/User/
 ### Version Control
 
 All configurations are stored in git at:
-- `components-global/04-vscode/*.json`
+- `components-personal/04-vscode/*.json`, `components-work/04-vscode/*.json`
 - `components-global/12-zsh/.zshrc`
 - `components-global/12-zsh/iterm2-keymap.json`
 - `components-global/20-ghostty/ghostty-config`
@@ -208,7 +195,8 @@ git commit -m "Update configurations"
 
 Each component README has customization instructions:
 
-- [04-vscode/README.md](04-vscode/README.md) - VSCode customization
+- [../components-personal/04-vscode/README.md](../components-personal/04-vscode/README.md) - Personal VSCode Insiders customization
+- [../components-work/04-vscode/README.md](../components-work/04-vscode/README.md) - Work VSCode customization
 - [12-zsh/README.md](12-zsh/README.md) - Zsh customization
 - [20-ghostty/README.md](20-ghostty/README.md) - Ghostty customization
 
@@ -218,9 +206,13 @@ These configuration files were originally located in the project root:
 - `.zshrc` → Moved to `components-global/12-zsh/`
 - `ghostty-config` → Moved to `components-global/20-ghostty/`
 - `iterm2-keymap.json` → Moved to `components-global/12-zsh/`
-- `vscode-keybindings.json` → Moved to `components-global/04-vscode/keybindings.json`
-- `.vscode/settings.json` → Moved to `components-global/04-vscode/settings.json`
-- `.vscode/extensions.json` → Moved to `components-global/04-vscode/extensions.json`
+- `vscode-keybindings.json` → Moved to `components-global/04-vscode/`, then later split into
+  `components-personal/04-vscode/keybindings.json` and `components-work/04-vscode/keybindings.json`
+  once VS Code stopped being a global component
+- `.vscode/settings.json` → same path, now `components-personal/04-vscode/settings.json` /
+  `components-work/04-vscode/settings.json`
+- `.vscode/extensions.json` → same path, now `components-personal/04-vscode/extensions.json` /
+  `components-work/04-vscode/extensions.json`
 
 You can keep or remove the original files from the project root as needed.
 
@@ -230,8 +222,8 @@ You can keep or remove the original files from the project root as needed.
 
 1. Verify correct installation location
    ```bash
-   # Personal VSCode profile
-   ls ~/.vscode-personal/User/
+   # Personal VSCode Insiders profile
+   ls ~/.vscode-personal-insiders/User/
 
    # Work VSCode profile
    ls ~/.vscode-work/User/
@@ -250,7 +242,7 @@ You can keep or remove the original files from the project root as needed.
 
 3. Check for syntax errors in JSON files:
    ```bash
-   python3 -m json.tool ~/.vscode-personal/User/keybindings.json
+   python3 -m json.tool ~/.vscode-personal-insiders/User/keybindings.json
    python3 -m json.tool ~/.vscode-work/User/keybindings.json
    ```
 
@@ -266,13 +258,13 @@ If you already have configurations:
 If configs can't be read:
 ```bash
 # Fix permissions
-chmod 644 ~/.vscode-personal/User/*
+chmod 644 ~/.vscode-personal-insiders/User/*
 chmod 644 ~/.vscode-work/User/*
 chmod 644 ~/.zshrc
 chmod 644 ~/.config/ghostty/config
 
 # Ensure directories exist
-mkdir -p ~/.vscode-personal/User
+mkdir -p ~/.vscode-personal-insiders/User
 mkdir -p ~/.vscode-work/User
 mkdir -p ~/.config/ghostty
 ```

@@ -5,6 +5,7 @@
         }
     },
     "terminal.integrated.defaultProfile.linux": "zsh",
+    "security.workspace.trust.enabled": false,
     "chat.commandCenter.enabled": false,
     "chat.disableAIFeatures": true,
     "multiCommand.commands": [

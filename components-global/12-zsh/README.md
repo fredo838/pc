@@ -96,9 +96,9 @@ echo -ne '\e[5 q'  # Blinking beam
 
 The configuration includes a `code` function that automatically selects the appropriate VSCode profile:
 
-- `/Users/fred/centrica/*` → Uses work profile (`~/.vscode-work`)
-- `/Users/fred/projects/*` → Uses personal profile (`~/.vscode-personal`)
-- Other paths → Uses default profile
+- `/home/fred/centrica/*` → Uses Stable, work profile (`~/.vscode-work`)
+- `/home/fred/projects/*` → Uses Insiders, personal profile (`~/.vscode-personal-insiders`)
+- Other paths → Uses default `code` profile
 
 ## Troubleshooting
 

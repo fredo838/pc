@@ -157,12 +157,14 @@ bash install-all.sh all
 
 ### VSCode Profiles
 
-With VSCode installed (components-global), personal projects automatically use:
+With this component's VS Code Insiders profile installed (`components-personal/04-vscode`),
+personal projects automatically use:
 ```
-~/.vscode-personal/
+~/.vscode-personal-insiders/
 ```
 
-The `.zshrc` `code` command detects paths under `/Users/fred/projects/` and uses personal profile.
+The `.zshrc` `code` command detects paths under `/home/fred/projects/` and launches
+`code-insiders` with the personal profile.
 
 ### Git Configuration
 

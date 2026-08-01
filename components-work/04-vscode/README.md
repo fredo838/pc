@@ -1,10 +1,11 @@
 # Work VS Code Profile
 
-This component contains the work VS Code user configuration for the `~/.vscode-work` profile.
+This component installs **VS Code** (Stable) and the work VS Code user configuration
+for the `~/.vscode-work` profile.
 
 ## Files
 
-- `install.sh` - creates/updates the `Work` profile (computer icon) and copies configuration files into its profile folder under `~/.vscode-work/User/profiles/`
+- `install.sh` - installs the `code` apt package, then creates/updates the `Work` profile (computer icon) and copies configuration files into its profile folder under `~/.vscode-work/User/profiles/`
 - `keybindings.json` - work keybindings
 - `settings.json` - work settings
 - `extensions.json` - recommended work extensions
@@ -18,7 +19,10 @@ bash install.sh
 
 ## Notes
 
-- This is a profile-only component. It does not install the VS Code package.
+- This component installs both the `code` package and this profile's configuration —
+  it is self-contained and doesn't depend on any other component for the VS Code binary.
+  Work never needs the Insiders channel; that's personal-only (see
+  `components-personal/04-vscode/`).
 - Launch work projects with:
 
 ```bash
