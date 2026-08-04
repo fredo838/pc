@@ -14,6 +14,11 @@ Personal projects, version control, browsing, and entertainment tools.
 |---|-----------|---------|
 | 19 | **chrome** | Google Chrome browser |
 
+### Email
+| # | Component | Purpose |
+|---|-----------|---------|
+| 20 | **gmail** | Gmail filters (label + archive mail via the Gmail API) |
+
 ### Entertainment
 | # | Component | Purpose |
 |---|-----------|---------|
@@ -50,6 +55,7 @@ Each component has detailed documentation:
 - [02-github/install.sh](02-github/install.sh) - GitHub SSH setup
 - [11-steam/install.sh](11-steam/install.sh) - Steam gaming
 - [19-chrome/README.md](19-chrome/README.md) - Google Chrome browser
+- [20-gmail/README.md](20-gmail/README.md) - Gmail filters
 
 ## 📁 Directory Structure
 
@@ -62,6 +68,12 @@ components-personal/
 ├── 19-chrome/
 │   ├── install.sh
 │   └── README.md
+├── 20-gmail/
+│   ├── install.sh
+│   ├── apply_filters.py
+│   ├── filters.yaml
+│   ├── requirements.txt
+│   └── README.md
 ├── install-all.sh          (Master script)
 └── README.md               (This file)
 ```
@@ -72,7 +84,8 @@ For personal setup:
 
 1. **02-github** - Set up GitHub SSH keys (do first)
 2. **19-chrome** - Install web browser
-3. **11-steam** - Install gaming platform
+3. **20-gmail** - Set up Gmail filters
+4. **11-steam** - Install gaming platform
 
 ## ⚙️ Configuration
 
@@ -98,6 +111,16 @@ Recommended extensions:
 - uBlock Origin - Ad blocker
 - Privacy Badger - Tracker blocker
 - ClearURLs - URL cleaner
+
+### Gmail (20-gmail)
+
+Creates Gmail filters via the Gmail API, driven by `filters.yaml`:
+- One-time OAuth setup against a Google Cloud project (see component README)
+- `filters.yaml` maps match criteria (from/subject/query) to a label
+- Matching mail gets labeled and archived (removed from Inbox) — the
+  closest Gmail equivalent to "forward into a folder"
+- Labeled/archived mail is never auto-deleted; only Trash/Spam purge
+  after 30 days, and this component doesn't touch either
 
 ### Steam (11-steam)
 
@@ -283,6 +306,7 @@ After installing personal components:
 - [ ] Test GitHub access: `ssh -T git@github.com`
 - [ ] Chrome installed and signed in
 - [ ] Chrome extensions installed
+- [ ] Gmail filters configured (`filters.yaml` filled in, `apply_filters.py` run)
 - [ ] Steam installed and logged in
 - [ ] VSCode opens personal projects with personal profile
 - [ ] Git commits use correct email (fredo.bode@gmail.com)

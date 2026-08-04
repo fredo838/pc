@@ -1,0 +1,27 @@
+# Gmail filter rules for apply_filters.py
+#
+# Each entry describes one filter. Gmail has no real "folders" — a filter
+# applies a label, and "archive: true" removes the message from the Inbox
+# (skips it, the way moving to a folder would). Nothing here causes mail
+# to be auto-deleted: labeled/archived mail is kept indefinitely, exactly
+# like everything else in All Mail. Only Trash and Spam auto-purge, after
+# 30 days, and this script never touches either.
+#
+# label: name of the Gmail label to apply. Use "Parent/Child" to nest it
+#        under a parent label (Gmail's native nesting separator). Created
+#        automatically if it doesn't already exist.
+# archive: true removes the INBOX label (message skips the inbox).
+#          false leaves it visible in the inbox in addition to the label.
+# criteria: at least one of the fields below (mirrors Gmail's search syntax)
+#   from, to, subject   - plain strings, can use * wildcards like Gmail search
+#   query               - a raw Gmail search string for anything more complex
+#   hasAttachment       - true/false
+#
+# This is a PLACEHOLDER example — replace it with your real rules before
+# running apply_filters.py.
+
+filters:
+  - label: "Example/Placeholder"
+    archive: true
+    criteria:
+      from: "notifications@example.com"
