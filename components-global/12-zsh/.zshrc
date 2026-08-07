@@ -141,6 +141,20 @@ exit_fix() {
 }
 alias exit='exit_fix'
 
+VSCODE_PERSONAL_ROOT=~/projects/vscode
+VSCODE_PERSONAL_BIN="$VSCODE_PERSONAL_ROOT/.build/electron/code-oss"
+
+# This is an unpackaged dev build (no app.asar), so Electron needs the app
+# location as its first positional arg to know what to load at all -- pass
+# VSCODE_PERSONAL_ROOT itself (absolute, so relative paths in "$@" like
+# "code ." still resolve against the caller's cwd, not this one). VS Code's
+# own arg parser only strips that positional arg back out (instead of
+# treating it as a folder to open alongside the real target) when
+# VSCODE_DEV is set.
+code_oss_personal() {
+  VSCODE_DEV=1 NODE_ENV=development "$VSCODE_PERSONAL_BIN" "$VSCODE_PERSONAL_ROOT" --user-data-dir ~/.vscode-personal/user-data --extensions-dir ~/.vscode-personal/extensions --profile Personal --enable-proposed-api=local.bode-claude "$@"
+}
+
 code() {
   local target="$PWD"
   for arg in "$@"; do
@@ -160,7 +174,7 @@ code() {
       command code --user-data-dir ~/.vscode-work --extensions-dir ~/.vscode-work-ext --profile Work "$@"
       ;;
     /home/fred/projects/*|/home/fred/projects)
-      command code-insiders --user-data-dir ~/.vscode-personal-insiders --extensions-dir ~/.vscode-personal-insiders-ext --profile Personal --enable-proposed-api=local.bode-claude "$@"
+      code_oss_personal "$@"
       ;;
     *)
       command code "$@"
@@ -173,7 +187,7 @@ code-work() {
 }
 
 code-personal() {
-  command code-insiders --user-data-dir ~/.vscode-personal-insiders --extensions-dir ~/.vscode-personal-insiders-ext --profile Personal --enable-proposed-api=local.bode-claude "$@"
+  code_oss_personal "$@"
 }
 
 PATH=$HOME/.pulumi/bin:$PATH

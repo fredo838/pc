@@ -5,9 +5,10 @@
         }
     },
     "terminal.integrated.defaultProfile.linux": "zsh",
+    "terminal.integrated.initialHint": false,
     "security.workspace.trust.enabled": false,
-    "chat.commandCenter.enabled": false,
-    "chat.disableAIFeatures": true,
+    "chat.viewSessions.orientation": "stacked",
+    "bodeClaude.developerMode": true,
     "multiCommand.commands": [
         {
             "command": "multiCommand.superFormatPython",
@@ -31,5 +32,5 @@
                 "editor.action.formatDocument"
             ]
         }
-    ],
+    ]
 }

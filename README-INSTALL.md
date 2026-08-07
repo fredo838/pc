@@ -47,7 +47,8 @@ Tools and configurations used regardless of work or personal context.
 Work-related tools for Centrica development.
 
 ### Editor
-- **04-vscode** - Visual Studio Code (Stable) with custom keybindings and the Work profile
+- **04-vscode** - Work profile (custom keybindings, extensions) for VS Code (Stable);
+  the `code` package itself comes from `components-global/04-vscode`
 
 ### Version Control & Git
 - **03-gitlab** - GitLab SSH configuration (Centrica)
@@ -75,7 +76,10 @@ See [components-work/README.md](components-work/README.md) for details.
 Personal projects, browsing, and hobbies.
 
 ### Editor
-- **04-vscode** - Visual Studio Code Insiders with custom keybindings and the Personal profile (Insiders is required for proposed-API extensions like `bode-claude`)
+- **04-vscode** - Personal profile for a self-built VS Code (Code - OSS), required for
+  unconditional proposed-API access for extensions like `bode-claude`; includes an
+  ochre-recolored desktop icon generated from the real logo installed by
+  `components-global/04-vscode`
 
 ### Version Control & Git
 - **02-github** - GitHub SSH configuration (personal account)
@@ -192,17 +196,18 @@ For a fresh Ubuntu setup:
 
 ### Phase 1: Base System (Required)
 1. components-global/**01-initial** - System dependencies
+2. components-global/**04-vscode** - VS Code (Stable) apt package (needed by both profiles below)
 
 ### Phase 2: Development Environment (Choose based on context)
 
 **For work (Centrica):**
-1. components-work/**04-vscode** - Code editor (Stable)
+1. components-work/**04-vscode** - Work profile config for the VS Code package installed above
 2. components-work/**03-gitlab** - GitLab SSH keys
 3. components-work/**06-aws-vpn-client** - Work VPN
 4. components-work/**07-aws-cli** - AWS tooling
 
 **For personal projects:**
-1. components-personal/**04-vscode** - Code editor (Insiders)
+1. components-personal/**04-vscode** - Self-built VS Code (Code - OSS) + Personal profile
 2. components-personal/**02-github** - GitHub SSH keys
 
 ### Phase 3: Development Tools (For all)
@@ -325,7 +330,7 @@ git commit -m "Installed and customized installation components"
 | 01-initial | ✓ | - | - | Base dependencies |
 | 02-github | - | - | ✓ | Personal Git SSH |
 | 03-gitlab | - | ✓ | - | Work Git SSH |
-| 04-vscode | - | ✓ | ✓ | Code editor (Stable for work, Insiders for personal — separate installs) |
+| 04-vscode | ✓ | ✓ | ✓ | Global: `code` apt package. Work: profile config on top of it. Personal: self-built binary + Work's real icon recolored ochre |
 | 05-python-pip | ✓ | - | - | Python package manager |
 | 06-aws-vpn-client | - | ✓ | - | Work VPN |
 | 07-aws-cli | - | ✓ | - | AWS tools |

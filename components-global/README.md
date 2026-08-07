@@ -12,6 +12,7 @@ Development tools, infrastructure, and settings used in all contexts (work and p
 ### Development & Coding
 | # | Component | Purpose |
 |---|-----------|---------|
+| 04 | **vscode** | VS Code (Stable) apt package — no profile config, see below |
 | 05 | **python-pip** | Python package manager |
 | 12 | **zsh** | Zsh shell with advanced keybindings |
 | 13 | **golang** | Go programming language |
@@ -70,6 +71,7 @@ bash install.sh
 Each component has detailed documentation:
 
 - [01-initial/install.sh](01-initial/install.sh) - Base system setup
+- [04-vscode/README.md](04-vscode/README.md) - VS Code apt package
 - [05-python-pip/install.sh](05-python-pip/install.sh) - Python pip
 - [08-kubectl/install.sh](08-kubectl/install.sh) - Kubernetes
 - [09-python-config/install.sh](09-python-config/install.sh) - Python configs
@@ -89,6 +91,9 @@ Each component has detailed documentation:
 components-global/
 ├── 01-initial/
 │   └── install.sh
+├── 04-vscode/
+│   ├── install.sh
+│   └── README.md
 ├── 05-python-pip/
 │   └── install.sh
 ├── 08-kubectl/
@@ -126,10 +131,14 @@ components-global/
 
 ## 🔑 Configuration Files
 
-VS Code is no longer a global component. Each profile installs its own VS Code
-channel and package alongside its configuration:
-- `components-personal/04-vscode/` - installs `code-insiders` + the Personal profile
-- `components-work/04-vscode/` - installs `code` (Stable) + the Work profile
+`04-vscode` here installs only the `code` (Stable) apt package — no profile
+configuration. That's because both profiles need the package present:
+`components-work/04-vscode/` configures the Work profile against it directly,
+and `components-personal/04-vscode/` (which runs a self-built binary, not
+this package) still reads the real logo this package installs at
+`/usr/share/pixmaps/vscode.png` to generate its own ochre-recolored icon.
+- `components-personal/04-vscode/` - configures the self-built Personal profile
+- `components-work/04-vscode/` - configures the Work profile
 
 | Component | Config Files | Destination |
 |-----------|--------------|-------------|
@@ -143,20 +152,21 @@ See [CONFIG-FILES.md](CONFIG-FILES.md) for complete details.
 For a fresh Ubuntu system:
 
 1. **01-initial** - System dependencies (required first)
-2. **12-zsh** - Shell (requires logout/login)
-3. **05-python-pip** - Python
-4. **16-python313** - Python 3.13
-5. **13-golang** - Go
-6. **08-kubectl** - Kubernetes
-7. **09-python-config** - Python configs
-8. **10-gnome-settings** - Desktop tweaks
-9. **17-pulumi** - Infrastructure as Code
-10. **18-gcloud** - Google Cloud SDK
-11. **20-ghostty** - Terminal emulator
-12. **14-qbittorrent** - Torrent client
-13. **15-vlc** - Media player
+2. **04-vscode** - VS Code apt package (before either profile component)
+3. **12-zsh** - Shell (requires logout/login)
+4. **05-python-pip** - Python
+5. **16-python313** - Python 3.13
+6. **13-golang** - Go
+7. **08-kubectl** - Kubernetes
+8. **09-python-config** - Python configs
+9. **10-gnome-settings** - Desktop tweaks
+10. **17-pulumi** - Infrastructure as Code
+11. **18-gcloud** - Google Cloud SDK
+12. **20-ghostty** - Terminal emulator
+13. **14-qbittorrent** - Torrent client
+14. **15-vlc** - Media player
 
-VS Code itself is installed per-profile: run `components-personal/04-vscode/install.sh`
+Profile configuration runs after: `components-personal/04-vscode/install.sh`
 and/or `components-work/04-vscode/install.sh` (see their READMEs).
 
 ## ⚙️ Key Configuration

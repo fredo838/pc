@@ -12,11 +12,11 @@ development environment — terminal, editor, shell, and tooling — in a repeat
 Configuration is organized into modular components, grouped by context:
 
 - **[components-global/](components-global/)** — tools and settings used in every
-  context (shell, terminal, Python, Go, cloud CLIs, etc.)
+  context (shell, terminal, Python, Go, cloud CLIs, the VS Code apt package, etc.)
 - **[components-personal/](components-personal/)** — personal-only tools (GitHub SSH,
-  Chrome, Steam, and VS Code **Insiders** for personal projects)
-- **[components-work/](components-work/)** — work-only tools (GitLab SSH, AWS, and VS
-  Code **Stable** for work projects)
+  Chrome, Steam, and the self-built VS Code **Personal** profile)
+- **[components-work/](components-work/)** — work-only tools (GitLab SSH, AWS, and the
+  VS Code **Work** profile, built on the Stable package from components-global)
 
 Each component is a numbered directory (e.g. `12-zsh/`) with its own `install.sh` and,
 where relevant, the config files it deploys.
@@ -42,10 +42,11 @@ cat README-INSTALL.md
 
 ## Notes
 
-- VS Code is not a global component: personal projects use **Insiders** (required for
-  proposed-API extension features), work projects use **Stable** — each profile
-  installs its own package. See `components-personal/04-vscode/README.md` and
-  `components-work/04-vscode/README.md`.
+- VS Code's apt package (Stable) is a global component (`components-global/04-vscode/`)
+  since both profiles need it — the Work profile runs it directly, and the Personal
+  profile (a self-built binary, for proposed-API extension features) still uses its
+  real logo as the source for its own ochre-recolored icon. See
+  `components-personal/04-vscode/README.md` and `components-work/04-vscode/README.md`.
 - The `.zshrc` `code` function auto-selects the right VS Code channel/profile based on
   the target directory (`/home/fred/centrica/*` → work, `/home/fred/projects/*` →
   personal).

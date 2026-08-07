@@ -5,6 +5,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+bash "$SCRIPT_DIR/components-global/04-vscode/install.sh"
 bash "$SCRIPT_DIR/components-personal/04-vscode/install.sh"
 
 cp "$SCRIPT_DIR/components-global/12-zsh/.zshrc" ~/.zshrc

@@ -26,7 +26,10 @@ cat ~/.ssh/id_ed25519_centrica.pub # add this in gitlab
 ## VSCode:
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-# Each profile installs its own VS Code channel/package (work: Stable, personal: Insiders).
+# The code (Stable) apt package is global -- both profiles need it (Work runs
+# it directly, Personal's self-built binary uses its real icon as the source
+# for its own ochre-recolored one). Install it before either profile.
+bash "$SCRIPT_DIR/components-global/04-vscode/install.sh"
 bash "$SCRIPT_DIR/components-work/04-vscode/install.sh"
 bash "$SCRIPT_DIR/components-personal/04-vscode/install.sh"
 
