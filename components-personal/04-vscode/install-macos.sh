@@ -299,7 +299,7 @@ PLIST
 echo "✓ App wrapper installed at: $APP_WRAPPER"
 
 # Create ochre-colored icon for the app wrapper
-REAL_ICON="$HOME/projects/vscode/.build/electron/Code.app/Contents/Resources/Code.icns"
+REAL_ICON="$HOME/projects/vscode/.build/electron/Code - OSS.app/Contents/Resources/Code - OSS.icns"
 if [ ! -f "$REAL_ICON" ]; then
   echo "⚠ VS Code icon not found at $REAL_ICON, skipping ochre icon"
 elif ! command -v iconutil >/dev/null 2>&1; then
