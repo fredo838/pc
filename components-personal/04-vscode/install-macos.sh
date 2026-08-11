@@ -246,8 +246,13 @@ mkdir -p "$WRAPPER_MACOS"
 # Create the launcher script inside the app bundle
 cat > "$WRAPPER_MACOS/Code-Personal" <<'APPWRAPPER'
 #!/bin/bash
-# Resolve relative paths to absolute paths so they work when launched via open -a
+# Handle folder passed via VSCODE_FOLDER_TO_OPEN environment variable
 ARGS=()
+if [[ -n "$VSCODE_FOLDER_TO_OPEN" ]]; then
+  ARGS+=("$VSCODE_FOLDER_TO_OPEN")
+fi
+
+# Also handle command line arguments
 for arg in "$@"; do
   case "$arg" in
     -*)

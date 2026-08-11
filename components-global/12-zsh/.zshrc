@@ -158,7 +158,7 @@ fi
 code_oss_personal() {
   if [[ "$OSTYPE" == "darwin"* ]]; then
     # On macOS, launch via app wrapper for the ochre icon
-    # Resolve the first non-flag argument to an absolute path for open -a compatibility
+    # Pass folder path via environment variable
     local folder=""
     for arg in "$@"; do
       if [[ ! "$arg" =~ ^- ]]; then
@@ -172,7 +172,7 @@ code_oss_personal() {
     done
 
     if [[ -n "$folder" ]]; then
-      open -a "Code-Personal" "$folder"
+      VSCODE_FOLDER_TO_OPEN="$folder" open -a "Code-Personal"
     else
       open -a "Code-Personal"
     fi
