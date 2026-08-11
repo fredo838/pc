@@ -158,7 +158,8 @@ fi
 code_oss_personal() {
   if [[ "$OSTYPE" == "darwin"* ]]; then
     # On macOS, launch via app wrapper to show the ochre icon in the dock
-    open -a "Code-Personal" "$@"
+    # Use --args to properly pass arguments through open -a
+    open -a "Code-Personal" --args "$@"
   else
     VSCODE_DEV=1 NODE_ENV=development "$VSCODE_PERSONAL_BIN" "$VSCODE_PERSONAL_ROOT" --user-data-dir ~/.vscode-personal/user-data --extensions-dir ~/.vscode-personal/extensions --profile Personal --enable-proposed-api=local.bode-claude "$@"
   fi
