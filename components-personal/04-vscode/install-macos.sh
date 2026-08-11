@@ -249,7 +249,7 @@ cat > "$WRAPPER_MACOS/Code-Personal" <<'APPWRAPPER'
 exec env \
   VSCODE_DEV=1 \
   NODE_ENV=development \
-  "$HOME/projects/vscode/.build/electron/Code.app/Contents/MacOS/Code" \
+  "$HOME/projects/vscode/.build/electron/Code - OSS.app/Contents/MacOS/Code - OSS" \
   "$HOME/projects/vscode" \
   --user-data-dir "$HOME/.vscode-personal/user-data" \
   --extensions-dir "$HOME/.vscode-personal/extensions" \
