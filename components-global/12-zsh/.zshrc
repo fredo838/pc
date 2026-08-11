@@ -157,8 +157,25 @@ fi
 # VSCODE_DEV is set.
 code_oss_personal() {
   if [[ "$OSTYPE" == "darwin"* ]]; then
-    # On macOS, execute the app wrapper's launcher script directly so arguments work
-    exec "$HOME/Applications/Code-Personal.app/Contents/MacOS/Code-Personal" "$@"
+    # On macOS, launch via app wrapper for the ochre icon
+    # Resolve the first non-flag argument to an absolute path for open -a compatibility
+    local folder=""
+    for arg in "$@"; do
+      if [[ ! "$arg" =~ ^- ]]; then
+        if [[ -e "$arg" ]]; then
+          folder="$(cd "$(dirname "$arg")" && pwd)/$(basename "$arg")"
+        else
+          folder="$arg"
+        fi
+        break
+      fi
+    done
+
+    if [[ -n "$folder" ]]; then
+      open -a "Code-Personal" "$folder"
+    else
+      open -a "Code-Personal"
+    fi
   else
     VSCODE_DEV=1 NODE_ENV=development "$VSCODE_PERSONAL_BIN" "$VSCODE_PERSONAL_ROOT" --user-data-dir ~/.vscode-personal/user-data --extensions-dir ~/.vscode-personal/extensions --profile Personal --enable-proposed-api=local.bode-claude "$@"
   fi
