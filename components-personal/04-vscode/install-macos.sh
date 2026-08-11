@@ -246,6 +246,25 @@ mkdir -p "$WRAPPER_MACOS"
 # Create the launcher script inside the app bundle
 cat > "$WRAPPER_MACOS/Code-Personal" <<'APPWRAPPER'
 #!/bin/bash
+# Resolve relative paths to absolute paths so they work when launched via open -a
+ARGS=()
+for arg in "$@"; do
+  case "$arg" in
+    -*)
+      # Keep flags as-is
+      ARGS+=("$arg")
+      ;;
+    *)
+      # Resolve relative paths to absolute
+      if [[ -e "$arg" ]]; then
+        ARGS+=("$(cd "$(dirname "$arg")" && pwd)/$(basename "$arg")")
+      else
+        ARGS+=("$arg")
+      fi
+      ;;
+  esac
+done
+
 exec env \
   VSCODE_DEV=1 \
   NODE_ENV=development \
@@ -255,7 +274,7 @@ exec env \
   --extensions-dir "$HOME/.vscode-personal/extensions" \
   --profile Personal \
   --enable-proposed-api=local.bode-claude \
-  "$@"
+  "${ARGS[@]}"
 APPWRAPPER
 
 chmod +x "$WRAPPER_MACOS/Code-Personal"
