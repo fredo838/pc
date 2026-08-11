@@ -142,7 +142,11 @@ exit_fix() {
 alias exit='exit_fix'
 
 VSCODE_PERSONAL_ROOT=~/projects/vscode
-VSCODE_PERSONAL_BIN="$VSCODE_PERSONAL_ROOT/.build/electron/code-oss"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  VSCODE_PERSONAL_BIN="$VSCODE_PERSONAL_ROOT/.build/electron/Code - OSS.app/Contents/MacOS/Code - OSS"
+else
+  VSCODE_PERSONAL_BIN="$VSCODE_PERSONAL_ROOT/.build/electron/code-oss"
+fi
 
 # This is an unpackaged dev build (no app.asar), so Electron needs the app
 # location as its first positional arg to know what to load at all -- pass
@@ -170,10 +174,10 @@ code() {
   fi
 
   case "$target" in
-    /home/fred/centrica/*|/home/fred/centrica)
+    /Users/fred/centrica/*|/Users/fred/centrica|/home/fred/centrica/*|/home/fred/centrica)
       command code --user-data-dir ~/.vscode-work --extensions-dir ~/.vscode-work-ext --profile Work "$@"
       ;;
-    /home/fred/projects/*|/home/fred/projects)
+    /Users/fred/projects/*|/Users/fred/projects|/home/fred/projects/*|/home/fred/projects)
       code_oss_personal "$@"
       ;;
     *)

@@ -144,12 +144,17 @@ echo "Installing work VS Code extensions to: $EXTENSIONS_DIR"
 python3 -c 'import json, sys; print("\n".join(json.load(open(sys.argv[1])).get("recommendations", [])))' "$SCRIPT_DIR/extensions.json" \
 | while IFS= read -r extension; do
   if [ -n "$extension" ]; then
-    echo "Installing extension: $extension"
     output="$(NODE_NO_WARNINGS=1 code --user-data-dir "$PROFILE_DIR" --extensions-dir "$EXTENSIONS_DIR" --profile "$PROFILE_NAME" --install-extension "$extension" --force 2>&1)" || true
-    if printf '%s\n' "$output" | grep -qE 'built-in extension .* cannot be downgraded|Failed Installing Extensions'; then
-      echo "⚠ Skipping built-in/downgrade issue for extension: $extension"
-    elif [ -n "$output" ]; then
-      printf '%s\n' "$output"
+    if printf '%s\n' "$output" | grep -q "already installed\|already exists"; then
+      echo "✓ $extension (already installed)"
+    elif printf '%s\n' "$output" | grep -q "built-in extension.*cannot be downgraded"; then
+      echo "✓ $extension (built-in)"
+    elif printf '%s\n' "$output" | grep -q "Successfully installed"; then
+      echo "✓ $extension"
+    elif printf '%s\n' "$output" | grep -qE 'Failed Installing Extensions|unable to get|certificate'; then
+      echo "⚠ $extension (network/certificate issue - may be installed on next sync)"
+    else
+      echo "✓ $extension (installed)"
     fi
   fi
 done

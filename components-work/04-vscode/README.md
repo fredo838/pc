@@ -1,35 +1,51 @@
 # Work VS Code Profile
 
-This component configures the **Work** profile (`~/.vscode-work`) for VS Code (Stable).
-It does not install the `code` package itself — that's `components-global/04-vscode`,
-since both this component and `components-personal/04-vscode` (which recolors the real
-VS Code logo the package ships) depend on it being present.
+This component configures the **Work** profile for VS Code (Stable) on both Linux and macOS.
+It stores configuration in `~/.vscode-work` with extensions in `~/.vscode-work-ext`.
+
+Both profiles and both platforms use identical keybindings and settings, so you can switch
+between machines without relearning.
 
 ## Files
 
-- `install.sh` - fails fast if `code` isn't on `PATH` (see `components-global/04-vscode`), then creates/updates the `Work` profile (computer icon) and copies configuration files into its profile folder under `~/.vscode-work/User/profiles/`
-- `keybindings.json` - work keybindings
-- `settings.json` - work settings
-- `extensions.json` - recommended work extensions
+- `install-linux.sh` - Linux-specific installer. Requires `code` on PATH, then creates/updates the Work profile
+- `install-macos.sh` - macOS-specific installer. Requires `code` on PATH (from Homebrew or official download)
+- `keybindings.json` - identical on both platforms
+- `settings.json` - identical on both platforms
+- `extensions.json` - identical on both platforms
 
 ## Installation
 
+From the repo root, use the unified update script:
+
 ```bash
-cd components-global/04-vscode && bash install.sh   # the code package, if not already installed
-cd ../../components-work/04-vscode && bash install.sh
+bash update.sh
+```
+
+Or manually:
+
+```bash
+# Install global VS Code first (if not already installed)
+bash components-global/04-vscode/install-linux.sh    # Linux
+bash components-global/04-vscode/install-macos.sh    # macOS
+
+# Then install Work profile
+bash components-work/04-vscode/install-linux.sh      # Linux
+bash components-work/04-vscode/install-macos.sh      # macOS
+```
+
+## Launch
+
+```bash
+# Automatic via shell wrapper (if configured in ~/.zshrc)
+code  # auto-selects Work profile for /Users/fred/centrica paths
+
+# Explicit
+code --user-data-dir ~/.vscode-work --extensions-dir ~/.vscode-work-ext --profile Work
 ```
 
 ## Notes
 
-- Work never needs the Insiders channel; that's personal-only (see
-  `components-personal/04-vscode/`).
-- Launch work projects with:
-
-```bash
-code --user-data-dir ~/.vscode-work --extensions-dir ~/.vscode-work-ext
-
-# Explicitly select the named profile
-code --user-data-dir ~/.vscode-work --extensions-dir ~/.vscode-work-ext --profile Work
-```
-
-- The shell wrapper in `components-global/12-zsh/.zshrc` can auto-select this profile for paths under `/Users/fred/centrica/`.
+- Uses custom data dirs (`~/.vscode-work`) instead of platform defaults for portability
+- Same keybindings and settings work across Linux and macOS
+- Shell wrapper in `components-global/12-zsh/.zshrc` auto-selects this profile based on working directory
