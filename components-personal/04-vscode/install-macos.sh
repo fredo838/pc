@@ -228,16 +228,8 @@ mkdir -p "$LAUNCH_DIR"
 cat > "$LAUNCH_SCRIPT" <<'LAUNCHER'
 #!/bin/bash
 # Launcher for self-built VS Code Personal profile on macOS
-exec env \
-  VSCODE_DEV=1 \
-  NODE_ENV=development \
-  "$HOME/projects/vscode/.build/electron/Code.app/Contents/MacOS/Code" \
-  "$HOME/projects/vscode" \
-  --user-data-dir "$HOME/.vscode-personal/user-data" \
-  --extensions-dir "$HOME/.vscode-personal/extensions" \
-  --profile Personal \
-  --enable-proposed-api=local.bode-claude \
-  "$@"
+# Launch via the app wrapper to ensure the ochre icon appears in the dock
+exec open -a "Code-Personal" "$@"
 LAUNCHER
 
 chmod +x "$LAUNCH_SCRIPT"
