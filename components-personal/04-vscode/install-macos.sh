@@ -268,7 +268,7 @@ APPWRAPPER
 
 chmod +x "$WRAPPER_MACOS/Code-Personal"
 
-# Create Info.plist for the wrapper app
+# Create Info.plist for the wrapper app (with icon reference)
 cat > "$WRAPPER_CONTENTS/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -276,6 +276,8 @@ cat > "$WRAPPER_CONTENTS/Info.plist" <<'PLIST'
 <dict>
 	<key>CFBundleExecutable</key>
 	<string>Code-Personal</string>
+	<key>CFBundleIconFile</key>
+	<string>Code</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.local.code-oss-personal</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -295,6 +297,69 @@ cat > "$WRAPPER_CONTENTS/Info.plist" <<'PLIST'
 PLIST
 
 echo "✓ App wrapper installed at: $APP_WRAPPER"
+
+# Create ochre-colored icon for the app wrapper
+REAL_ICON="$HOME/projects/vscode/.build/electron/Code.app/Contents/Resources/Code.icns"
+if [ ! -f "$REAL_ICON" ]; then
+  echo "⚠ VS Code icon not found at $REAL_ICON, skipping ochre icon"
+elif ! command -v iconutil >/dev/null 2>&1; then
+  echo "⚠ iconutil not found, skipping ochre icon"
+elif ! python3 -c "import PIL" >/dev/null 2>&1; then
+  echo "⚠ Pillow not installed for python3, skipping ochre icon"
+else
+  echo "Creating ochre-colored icon for macOS app wrapper..."
+
+  ICON_TEMP="$(mktemp -d)"
+  ICON_ICONSET="$ICON_TEMP/Code.iconset"
+  mkdir -p "$ICON_ICONSET"
+
+  if iconutil -c iconset -o "$ICON_ICONSET" "$REAL_ICON" 2>/dev/null; then
+    SOURCE_PNG=""
+    for png in "$ICON_ICONSET"/*.png; do
+      if [[ "$png" == *"icon_256x256.png" ]] || [[ "$png" == *"icon_512x512.png" ]]; then
+        SOURCE_PNG="$png"
+        break
+      fi
+    done
+
+    if [ -z "$SOURCE_PNG" ]; then
+      for png in "$ICON_ICONSET"/*.png; do
+        SOURCE_PNG="$png"
+        break
+      done
+    fi
+
+    if [ -n "$SOURCE_PNG" ] && [ -f "$SOURCE_PNG" ]; then
+      OCHRE_PNG="$ICON_TEMP/Code-ochre.png"
+      if python3 "$SCRIPT_DIR/make-ochre-icon.py" "$SOURCE_PNG" "$OCHRE_PNG"; then
+        NEW_ICONSET="$ICON_TEMP/Code-ochre.iconset"
+        mkdir -p "$NEW_ICONSET"
+
+        for size in 16 32 64 128 256 512 1024; do
+          OUTPUT="$NEW_ICONSET/icon_${size}x${size}.png"
+          sips -z $size $size "$OCHRE_PNG" --out "$OUTPUT" >/dev/null 2>&1
+
+          OUTPUT_2X="$NEW_ICONSET/icon_${size}x${size}@2x.png"
+          sips -z $((size * 2)) $((size * 2)) "$OCHRE_PNG" --out "$OUTPUT_2X" >/dev/null 2>&1
+        done
+
+        WRAPPER_ICON="$WRAPPER_CONTENTS/Resources/Code.icns"
+        mkdir -p "$WRAPPER_CONTENTS/Resources"
+        if iconutil -c icns -o "$WRAPPER_ICON" "$NEW_ICONSET" 2>/dev/null; then
+          echo "✓ Ochre icon created"
+        else
+          echo "⚠ Failed to create ICNS file"
+        fi
+      else
+        echo "⚠ Failed to recolor icon to ochre"
+      fi
+    fi
+  else
+    echo "⚠ Failed to extract icon from ICNS"
+  fi
+
+  rm -rf "$ICON_TEMP"
+fi
 
 echo ""
 echo "To launch the Personal profile, you can use:"

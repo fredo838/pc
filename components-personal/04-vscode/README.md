@@ -15,14 +15,14 @@ tied to a specific packaged channel.
 - `install-linux.sh` - Linux-specific installer. Creates/updates the Personal profile,
   manages extensions, and creates an ochre-colored desktop icon.
 - `install-macos.sh` - macOS-specific installer. Creates/updates the Personal profile,
-  manages extensions, and creates a launch helper app wrapper.
+  manages extensions, creates a launch helper app wrapper, and applies an ochre-colored icon.
 - `keybindings.json` - identical on both platforms
 - `settings.json` - identical on both platforms
 - `extensions.json` - identical on both platforms
 - `product.overrides.json` - adds an `extensionsGallery` pointing at open-vsx.org
   (used by both platforms)
-- `make-ochre-icon.py` - (Linux only) recolors the real VS Code logo to ochre for the
-  desktop icon
+- `make-ochre-icon.py` - Recolors the VS Code logo to ochre. Used by both platforms:
+  Linux for the desktop icon, macOS for the app wrapper's custom icon
 
 ## Installation
 
@@ -125,6 +125,9 @@ bash install-macos.sh    # macOS
 - **App wrapper**: `install-macos.sh` creates `~/Applications/Code-Personal.app`
   as a native macOS app bundle that launches the self-built Code.app with the
   correct environment variables. This allows Spotlight search and Launchpad integration.
+- **Ochre icon**: The app wrapper gets a custom ochre-colored icon (recolored from the
+  real VS Code logo) so Personal is recognizable as VS Code at a glance but visually
+  distinct from other VS Code installations on the system.
 - **Launch helpers**: Both `~/.local/bin/code-oss-personal` and the `Code-Personal.app`
   wrapper are created during installation.
 - **Launch**: Use `code-oss-personal [folder]` or `open -a 'Code-Personal' [folder]`.
