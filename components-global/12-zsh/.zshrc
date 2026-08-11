@@ -156,7 +156,12 @@ fi
 # treating it as a folder to open alongside the real target) when
 # VSCODE_DEV is set.
 code_oss_personal() {
-  VSCODE_DEV=1 NODE_ENV=development "$VSCODE_PERSONAL_BIN" "$VSCODE_PERSONAL_ROOT" --user-data-dir ~/.vscode-personal/user-data --extensions-dir ~/.vscode-personal/extensions --profile Personal --enable-proposed-api=local.bode-claude "$@"
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    # On macOS, launch via app wrapper to show the ochre icon in the dock
+    open -a "Code-Personal" "$@"
+  else
+    VSCODE_DEV=1 NODE_ENV=development "$VSCODE_PERSONAL_BIN" "$VSCODE_PERSONAL_ROOT" --user-data-dir ~/.vscode-personal/user-data --extensions-dir ~/.vscode-personal/extensions --profile Personal --enable-proposed-api=local.bode-claude "$@"
+  fi
 }
 
 code() {
