@@ -156,6 +156,36 @@ fi
 # treating it as a folder to open alongside the real target) when
 # VSCODE_DEV is set.
 code_oss_personal() {
+  # Always redirect a directory target to its sibling <name>.code-workspace file (the
+  # multi-root workspace bode-claude's per-conversation-worktree feature manages -- see
+  # WorktreeHost.addFolder in chatView.ts) rather than opening the plain folder. VS Code
+  # treats a folder and its workspace file as different window identities, so opening the
+  # plain folder while a workspace-file window for the same repo already exists (or gets
+  # restored on launch) produces two windows instead of reusing one. Unconditional by
+  # design (no existence check): bode-claude creates this file unconditionally the first
+  # time a repo is opened through it (`ensureMultiRoot`), so in steady state it always
+  # exists -- the only gap is the very first `code .` ever run against a brand-new repo,
+  # which will fail to open a not-yet-created workspace file instead of falling back.
+  local -a args
+  args=("$@")
+  local idx=0 arg resolved ws_file
+  for arg in "$@"; do
+    idx=$((idx + 1))
+    [[ "$arg" == -* ]] && continue
+    resolved="$arg"
+    if [[ -d "$arg" ]]; then
+      resolved="$(cd "$arg" && pwd)"
+    elif [[ -e "$arg" ]]; then
+      resolved="$(cd "$(dirname "$arg")" && pwd)/$(basename "$arg")"
+    fi
+    if [[ -d "$resolved" ]]; then
+      ws_file="${resolved}.code-workspace"
+      args[$idx]="$ws_file"
+    fi
+    break
+  done
+  set -- "${args[@]}"
+
   if [[ "$OSTYPE" == "darwin"* ]]; then
     # On macOS, launch via app wrapper for the ochre icon
     # Pass folder path via environment variable
@@ -217,3 +247,16 @@ code-personal() {
 }
 
 PATH=$HOME/.pulumi/bin:$PATH
+
+# added by bode install: prepend ~/.bode to PATH
+export PATH="${HOME}/.bode:${PATH}"
+
+
+autoload -U +X compinit && compinit
+
+
+if [ -e /home/fred/.bode/bode_autocomplete_zsh.sh ]; then
+    source /home/fred/.bode/bode_autocomplete_zsh.sh;
+fi
+
+PATH=/usr/local/go/bin:$HOME/go/bin:$PATH

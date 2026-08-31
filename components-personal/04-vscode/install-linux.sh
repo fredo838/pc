@@ -158,6 +158,16 @@ fi
 USER_DIR="$USER_ROOT/profiles/$PROFILE_ID"
 mkdir -p "$USER_DIR"
 
+# Registering the profile above (via the raw storage.json write) doesn't provision this
+# directory the way VS Code's own "Create Profile" flow does. Without it, the storage service
+# can't open this profile's state.vscdb (SQLITE_CANTOPEN: unable to open database file) and
+# silently falls back to a non-persistent, in-memory-only storage mode for every extension's
+# `context.globalState` in this profile -- so any extension relying on globalState to survive a
+# restart (e.g. bode-claude's conversation history) quietly loses everything on quit, even though
+# nothing errors during the session itself. Only affects a *new* profile the very first time this
+# runs; harmless no-op once the directory already exists.
+mkdir -p "$USER_DIR/globalStorage"
+
 echo "Installing personal VS Code profile config to: $USER_DIR"
 for filename in keybindings.json settings.json; do
   if [ -f "$SCRIPT_DIR/$filename" ]; then
