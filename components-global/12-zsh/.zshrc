@@ -171,10 +171,14 @@ code_oss_personal() {
       fi
     done
 
+    # -n forces a fresh process every launch. Without it, "open -a" just
+    # activates the already-running wrapper instead of re-executing it,
+    # so the folder below never reaches VS Code's own single-instance IPC
+    # (which is what actually opens a new window for a different folder).
     if [[ -n "$folder" ]]; then
-      VSCODE_FOLDER_TO_OPEN="$folder" open -a "Code-Personal"
+      open -n -a "Code-Personal" --args "$folder"
     else
-      open -a "Code-Personal"
+      open -n -a "Code-Personal"
     fi
   else
     VSCODE_DEV=1 NODE_ENV=development "$VSCODE_PERSONAL_BIN" "$VSCODE_PERSONAL_ROOT" --user-data-dir ~/.vscode-personal/user-data --extensions-dir ~/.vscode-personal/extensions --profile Personal --enable-proposed-api=local.bode-claude "$@"
