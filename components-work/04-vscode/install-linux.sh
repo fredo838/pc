@@ -7,17 +7,15 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../../lib/component.sh"
 PROFILE_DIR="$HOME/.vscode-work"
 EXTENSIONS_DIR="$HOME/.vscode-work-ext"
 PROFILE_NAME="Work"
 PROFILE_ICON="project"
 
 if ! command -v code >/dev/null 2>&1; then
-  echo "⚠ VS Code ('code') not found on PATH."
-  echo "  Install it first:"
-  echo "    cd $(cd "$SCRIPT_DIR/../../components-global/04-vscode" && pwd)"
-  echo "    bash install.sh"
-  exit 1
+  skip_component "VS Code ('code') not found on PATH" \
+    "bash install-ubuntu.sh global   # or components-global/04-vscode/install-linux.sh"
 fi
 
 vscode_cli() {

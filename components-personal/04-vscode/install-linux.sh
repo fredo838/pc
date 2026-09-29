@@ -14,6 +14,7 @@ unset ELECTRON_RUN_AS_NODE
 unset ELECTRON_NO_ATTACH_CONSOLE
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../../lib/component.sh"
 VSCODE_ROOT="$HOME/projects/vscode"
 CODE_BIN="$VSCODE_ROOT/.build/electron/code-oss"
 PROFILE_DIR="$HOME/.vscode-personal/user-data"
@@ -26,16 +27,19 @@ PROFILE_ICON="heart"
 # why: proposed-API access for the bode-claude extension's native chat
 # integration). Building it is that repo's own responsibility
 # (bash install.sh, npm run compile, npm run electron) -- this script only
-# fails fast with instructions if the build isn't there yet.
-if [ ! -x "$CODE_BIN" ]; then
-  echo "⚠ Self-built VS Code binary not found at $CODE_BIN"
-  echo "  Build it first (scripts/code.sh normally does this on first launch"
-  echo "  via preLaunch.ts, but this wrapper bypasses that script):"
-  echo "    cd $VSCODE_ROOT"
-  echo "    bash install.sh   # npm install"
-  echo "    npm run compile   # builds ./out"
-  echo "    npm run electron  # fetches .build/electron"
-  exit 1
+# skips with instructions for whichever step hasn't been done yet.
+# (scripts/code.sh normally builds on first launch via preLaunch.ts, but the
+# launchers here bypass that script.)
+if [ ! -d "$VSCODE_ROOT/.git" ]; then
+  skip_component "self-built VS Code not checked out at $VSCODE_ROOT" \
+    "git clone https://github.com/microsoft/vscode.git $VSCODE_ROOT" \
+    "then: cd $VSCODE_ROOT && bash install.sh && npm run compile && npm run electron"
+elif [ ! -f "$VSCODE_ROOT/out/cli.js" ]; then
+  skip_component "self-built VS Code not compiled ($VSCODE_ROOT/out/cli.js missing)" \
+    "cd $VSCODE_ROOT && bash install.sh && npm run compile && npm run electron"
+elif [ ! -x "$CODE_BIN" ]; then
+  skip_component "self-built VS Code Electron binary missing ($CODE_BIN)" \
+    "cd $VSCODE_ROOT && npm run electron"
 fi
 
 # Vanilla Code-OSS ships with no extensionsGallery in product.json at all --

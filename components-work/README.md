@@ -19,17 +19,10 @@ Centrica-specific development tools and infrastructure for work projects.
 
 ### Install All Work Components
 
-```bash
-cd components-work
-bash install-all.sh all
-```
-
-### Interactive Selection
+From the repo root (Ubuntu):
 
 ```bash
-cd components-work
-bash install-all.sh
-# Follow prompts to select components
+bash install-ubuntu.sh work
 ```
 
 ### Install Individual Component
@@ -57,7 +50,6 @@ components-work/
 │   └── install.sh
 ├── 07-aws-cli/
 │   └── install.sh
-├── install-all.sh          (Master script)
 └── README.md               (This file)
 ```
 
@@ -142,13 +134,7 @@ ssh-add -l
 For full work environment, install both:
 
 ```bash
-# Install global components first
-cd components-global
-bash install-all.sh all
-
-# Then install work components
-cd ../components-work
-bash install-all.sh all
+bash install-ubuntu.sh global work
 ```
 
 ### VSCode Profiles
@@ -351,7 +337,7 @@ Refer to upstream documentation:
 ## 🎯 Next Steps
 
 1. Install global components first (if not already done)
-2. Run `install-all.sh` with interactive selection
+2. Run `bash install-ubuntu.sh work` from the repo root (or a single component's `install.sh`)
 3. Generate GitLab SSH key and add to account
 4. Configure AWS credentials
 5. Test VPN connection

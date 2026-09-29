@@ -5,16 +5,15 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../../lib/component.sh"
 PROFILE_DIR="$HOME/.vscode-work"
 EXTENSIONS_DIR="$HOME/.vscode-work-ext"
 PROFILE_NAME="Work"
 PROFILE_ICON="project"
 
 if ! command -v code >/dev/null 2>&1; then
-  echo "⚠ VS Code ('code') not found on PATH."
-  echo "  Install it first:"
-  echo "    brew install --cask visual-studio-code"
-  exit 1
+  skip_component "VS Code ('code') not found on PATH" \
+    "brew install --cask visual-studio-code"
 fi
 
 vscode_cli() {

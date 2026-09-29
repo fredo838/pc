@@ -5,6 +5,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../../lib/component.sh"
 VSCODE_ROOT="$HOME/projects/vscode"
 CODE_APP="$VSCODE_ROOT/.build/electron/Code - OSS.app"
 CODE_BIN="$CODE_APP/Contents/MacOS/Code - OSS"
@@ -13,15 +14,18 @@ EXTENSIONS_DIR="$HOME/.vscode-personal/extensions"
 PROFILE_NAME="Personal"
 PROFILE_ICON="heart"
 
-# Check if the self-built VS Code binary exists
-if [ ! -x "$CODE_BIN" ]; then
-  echo "⚠ Self-built VS Code binary not found at $CODE_BIN"
-  echo "  Build it first:"
-  echo "    cd $VSCODE_ROOT"
-  echo "    npm install"
-  echo "    npm run compile   # builds ./out"
-  echo "    npm run electron  # builds .build/electron/Code.app"
-  exit 1
+# The self-built VS Code at $VSCODE_ROOT is built by that repo, not here:
+# skip with instructions for whichever build step hasn't been done yet.
+if [ ! -d "$VSCODE_ROOT/.git" ]; then
+  skip_component "self-built VS Code not checked out at $VSCODE_ROOT" \
+    "git clone https://github.com/microsoft/vscode.git $VSCODE_ROOT" \
+    "then: cd $VSCODE_ROOT && npm install && npm run compile && npm run electron"
+elif [ ! -f "$VSCODE_ROOT/out/cli.js" ]; then
+  skip_component "self-built VS Code not compiled ($VSCODE_ROOT/out/cli.js missing)" \
+    "cd $VSCODE_ROOT && npm install && npm run compile && npm run electron"
+elif [ ! -x "$CODE_BIN" ]; then
+  skip_component "self-built VS Code Electron app missing ($CODE_APP)" \
+    "cd $VSCODE_ROOT && npm run electron"
 fi
 
 # Copy product.overrides.json to use open-vsx marketplace

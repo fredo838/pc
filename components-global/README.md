@@ -46,17 +46,10 @@ Development tools, infrastructure, and settings used in all contexts (work and p
 
 ### Install All Global Components
 
-```bash
-cd components-global
-bash install-all.sh all
-```
-
-### Interactive Selection
+From the repo root (Ubuntu):
 
 ```bash
-cd components-global
-bash install-all.sh
-# Follow prompts to select components
+bash install-ubuntu.sh global
 ```
 
 ### Install Individual Component
@@ -123,10 +116,8 @@ components-global/
 │   ├── install.sh
 │   ├── README.md
 │   └── ghostty-config
-├── install-all.sh          (Master script)
 ├── README.md               (This file)
-├── CONFIG-FILES.md         (Configuration mapping)
-└── QUICK-START.md          (Quick reference)
+└── CONFIG-FILES.md         (Configuration mapping)
 ```
 
 ## 🔑 Configuration Files
@@ -166,8 +157,8 @@ For a fresh Ubuntu system:
 13. **14-qbittorrent** - Torrent client
 14. **15-vlc** - Media player
 
-Profile configuration runs after: `components-personal/04-vscode/install.sh`
-and/or `components-work/04-vscode/install.sh` (see their READMEs).
+Profile configuration runs after: `components-personal/04-vscode/install-linux.sh`
+and/or `components-work/04-vscode/install-linux.sh` (see their READMEs).
 
 ## ⚙️ Key Configuration
 
@@ -319,7 +310,7 @@ nano ../components-personal/04-vscode/keybindings.json
 
 # Re-run install to update system files
 bash 12-zsh/install.sh
-bash ../components-personal/04-vscode/install.sh
+bash ../components-personal/04-vscode/install-linux.sh
 ```
 
 ## 📞 Troubleshooting
@@ -356,7 +347,7 @@ sudo apt-get install package-name
 ## 🎯 Next Steps
 
 1. Choose components to install
-2. Run `install-all.sh` with interactive selection
+2. Run `bash install-ubuntu.sh global` from the repo root (or a single component's `install.sh`)
 3. Review documentation for each component
 4. Test installations
 5. Customize configurations as needed
@@ -365,7 +356,6 @@ sudo apt-get install package-name
 ## 📚 Additional Resources
 
 - [CONFIG-FILES.md](CONFIG-FILES.md) - Configuration file locations and usage
-- [QUICK-START.md](QUICK-START.md) - Quick reference guide
 - [../README-INSTALL.md](../README-INSTALL.md) - Overall installation guide
 - [../components-work/README.md](../components-work/README.md) - Work-specific components
 - [../components-personal/README.md](../components-personal/README.md) - Personal components

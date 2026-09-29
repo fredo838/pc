@@ -1,18 +1,25 @@
 #!/bin/bash
 # Zsh shell installation and configuration
 
-echo "Installing Zsh..."
+set -e
 
-# Install zsh
-sudo apt-get update
-sudo apt-get install -y zsh
+echo "Setting up Zsh..."
 
-# Set zsh as default shell
-ZSH_PATH="$(command -v zsh)"
-if [ -n "$ZSH_PATH" ]; then
-    chsh -s "$ZSH_PATH"
-else
-    echo "⚠ Could not find zsh in PATH; skipping default shell change"
+# macOS ships zsh as the default shell; only Linux needs installing it and
+# switching the login shell.
+if [ "$(uname -s)" = "Linux" ]; then
+    sudo apt-get update
+    sudo apt-get install -y zsh
+
+    # chsh prompts for a password, so skip it if zsh is already the default
+    ZSH_PATH="$(command -v zsh)"
+    if [ -z "$ZSH_PATH" ]; then
+        echo "⚠ Could not find zsh in PATH; skipping default shell change"
+    elif [ "$(getent passwd "$USER" | cut -d: -f7)" = "$ZSH_PATH" ]; then
+        echo "✓ zsh is already the default shell"
+    else
+        chsh -s "$ZSH_PATH"
+    fi
 fi
 
 # Copy configuration files
@@ -20,11 +27,16 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if [ -f "$SCRIPT_DIR/.zshrc" ]; then
     echo "Installing .zshrc configuration..."
+    if [ -f ~/.zshrc ] && ! cmp -s "$SCRIPT_DIR/.zshrc" ~/.zshrc; then
+        backup=~/.zshrc.bak.$(date +%Y%m%d-%H%M%S)
+        cp ~/.zshrc "$backup"
+        echo "✓ Previous ~/.zshrc backed up to $backup"
+    fi
     cp "$SCRIPT_DIR/.zshrc" ~/.zshrc
     echo "✓ .zshrc installed to ~/.zshrc"
 fi
 
-echo "✓ Zsh installed successfully"
+echo "✓ Zsh set up successfully"
 echo ""
 echo "Note: You must log out and log back in for zsh to become your default shell"
 echo ""

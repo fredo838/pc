@@ -1,27 +1,29 @@
 #!/bin/bash
 # Ghostty terminal emulator installation
 
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../../lib/component.sh"
+
 echo "Installing Ghostty terminal emulator..."
 
-# Note: Ghostty installation method depends on your system
-# For Fedora/RHEL: dnf install ghostty
-# For Debian/Ubuntu: May need to build from source or add PPA
-
-# Check if ghostty is available in repos
-if apt-cache search ghostty | grep -q "^ghostty "; then
-    echo "Installing Ghostty from repositories..."
+# Ubuntu doesn't package Ghostty on every release: prefer apt when it does,
+# then the snap, and otherwise skip with pointers.
+if command -v ghostty >/dev/null 2>&1 || [ -x /snap/bin/ghostty ]; then
+    echo "✓ Ghostty already installed"
+elif apt-cache show ghostty >/dev/null 2>&1; then
+    echo "Installing Ghostty from apt..."
     sudo apt-get install -y ghostty
+elif command -v snap >/dev/null 2>&1 && snap info ghostty >/dev/null 2>&1; then
+    echo "Installing Ghostty from snap..."
+    sudo snap install ghostty --classic
 else
-    echo "Ghostty not found in default repositories"
-    echo "You may need to:"
-    echo "  1. Add a PPA with Ghostty"
-    echo "  2. Build from source: https://github.com/mitchellh/ghostty"
-    echo "  3. Download pre-built binary"
-    exit 1
+    skip_component "no Ghostty package available via apt or snap" \
+        "see https://ghostty.org/docs/install/binary for other install options"
 fi
 
 # Copy configuration files
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 GHOSTTY_CONFIG_DIR="$HOME/.config/ghostty"
 
 mkdir -p "$GHOSTTY_CONFIG_DIR"
@@ -33,7 +35,6 @@ if [ -f "$SCRIPT_DIR/ghostty-config" ]; then
 fi
 
 echo "✓ Ghostty installed successfully"
-ghostty --version
 
 echo ""
 echo "Configuration file:"

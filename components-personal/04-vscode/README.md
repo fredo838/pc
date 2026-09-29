@@ -41,10 +41,11 @@ This creates:
 
 ### Then provision the profile
 
-From the repo root, use the unified update script:
+From the repo root, run the entry script for your platform:
 
 ```bash
-bash update.sh
+bash install-mac.sh      # macOS
+bash install-ubuntu.sh   # Ubuntu
 ```
 
 Or manually for a specific platform:

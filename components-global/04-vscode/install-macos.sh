@@ -8,18 +8,16 @@
 
 set -e
 
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../../lib/component.sh"
+
 APP_BUNDLE="/Applications/Visual Studio Code.app"
 
 if command -v code >/dev/null 2>&1; then
   echo "✓ VS Code already installed at: $(command -v code)"
 else
-  echo "⚠ VS Code ('code') not found on PATH."
-  echo ""
-  echo "Install via Homebrew:"
-  echo "  brew install --cask visual-studio-code"
-  echo ""
-  echo "Or download from https://code.visualstudio.com/download"
-  exit 1
+  skip_component "VS Code ('code') not found on PATH" \
+    "brew install --cask visual-studio-code" \
+    "or download it from https://code.visualstudio.com/download"
 fi
 
 if [ -d "$APP_BUNDLE" ]; then

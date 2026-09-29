@@ -28,17 +28,10 @@ Personal projects, version control, browsing, and entertainment tools.
 
 ### Install All Personal Components
 
-```bash
-cd components-personal
-bash install-all.sh all
-```
-
-### Interactive Selection
+From the repo root (Ubuntu):
 
 ```bash
-cd components-personal
-bash install-all.sh
-# Follow prompts to select components
+bash install-ubuntu.sh personal
 ```
 
 ### Install Individual Component
@@ -74,7 +67,6 @@ components-personal/
 │   ├── filters.yaml
 │   ├── requirements.txt
 │   └── README.md
-├── install-all.sh          (Master script)
 └── README.md               (This file)
 ```
 
@@ -169,13 +161,7 @@ ssh-add -l
 For personal development environment, install both:
 
 ```bash
-# Install global components first
-cd components-global
-bash install-all.sh all
-
-# Then install personal components
-cd ../components-personal
-bash install-all.sh all
+bash install-ubuntu.sh global personal
 ```
 
 ### VSCode Profiles
@@ -432,7 +418,7 @@ ssh -T git@github.com
 ## 🎯 Next Steps
 
 1. Install global components first (if not already done)
-2. Run `install-all.sh` with interactive selection
+2. Run `bash install-ubuntu.sh personal` from the repo root (or a single component's `install.sh`)
 3. Generate GitHub SSH key and add to account
 4. Test GitHub access
 5. Install and sign into Chrome

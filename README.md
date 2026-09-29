@@ -3,7 +3,7 @@
 This repository holds the configuration, dotfiles, and installation notes I use to
 bootstrap a fresh workstation. Full machine setup targets **Ubuntu Linux** (with a
 Belgian keyboard layout and NVIDIA drivers); the VS Code profiles and zsh config
-(everything [update.sh](update.sh) applies) also support **macOS**.
+also support **macOS**.
 
 The goal is to be able to go from a clean OS install to a fully configured
 development environment — terminal, editor, shell, and tooling — in a repeatable way.
@@ -19,25 +19,28 @@ Configuration is organized into modular components, grouped by context:
 - **[components-work/](components-work/)** — work-only tools (GitLab SSH, AWS, and the
   VS Code **Work** profile, built on the Stable package from components-global)
 
-- **[lib/](lib/)** — shell helpers shared by components;
+- **[lib/](lib/)** — shell helpers shared by components:
+  [install-runner.sh](lib/install-runner.sh) runs components and prints the summary, and
   [vscode-profile.sh](lib/vscode-profile.sh) holds the profile/settings/extension steps
   used by both `04-vscode` installers on both platforms
 
-Each component is a numbered directory (e.g. `12-zsh/`) with its own `install.sh` and,
-where relevant, the config files it deploys.
+Each component is a numbered directory (e.g. `12-zsh/`) with its own `install.sh` (or
+`install-linux.sh`/`install-macos.sh`) and, where relevant, the config files it deploys.
 
-[install-ubuntu.sh](install-ubuntu.sh) is a curated set of copy/paste notes for
-bootstrapping a brand new machine end-to-end (packages, SSH keys, cloud tooling, desktop
-apps) — read it before running anything rather than executing it blindly.
+## Usage
 
-[update.sh](update.sh) re-applies this repo's VS Code and zsh config to an already-set-up
-machine (useful after editing something in `components-global/12-zsh/` or either
-`04-vscode/` component).
+Two entry points, both safe to re-run — for a fresh machine, and to re-apply config
+after editing something here:
+
+```bash
+bash install-ubuntu.sh    # Ubuntu: every component (optionally: global work personal)
+bash install-mac.sh       # macOS: VS Code profiles + zsh
+```
 
 ## Getting Started
 
 See **[README-INSTALL.md](README-INSTALL.md)** for the full breakdown of every
-component, recommended installation order, and customization instructions.
+component, the manual follow-up steps, and customization instructions.
 
 ```bash
 git clone <this-repo-url> pc

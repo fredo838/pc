@@ -1,393 +1,149 @@
-# Ubuntu Installation Components
+# Installation
 
-Modular installation scripts organized into three categories: **global**, **work**, and **personal**.
+Two entry points, both safe to re-run (use them for a fresh machine and to re-apply
+config after editing something in this repo):
+
+```bash
+bash install-ubuntu.sh    # Ubuntu: every component
+bash install-mac.sh       # macOS: VS Code profiles + zsh
+```
+
+Each script runs its components in order, keeps going if one fails, and ends with a
+summary of what succeeded (✓), was skipped (⊘) and failed (✗). A component is
+**skipped**, not failed, when a prerequisite you have to provide yourself is missing — it
+prints the reason and how to fix it, e.g.:
+
+- Personal VS Code: `~/projects/vscode` not cloned, not compiled (`out/cli.js`), or no
+  Electron build yet — the message names the missing step
+- Work VS Code (and the macOS global check): `code` not on PATH
+- Ghostty: no package via apt or snap
+
+Components signal this with `skip_component` from [lib/component.sh](lib/component.sh)
+(exit code 100). Skips alone don't make the script exit non-zero; failures do. Every component can also be re-run on its own,
+e.g. `bash components-work/04-vscode/install-linux.sh`.
 
 ## 📁 Directory Structure
 
 ```
 pc/
+├── install-ubuntu.sh        # Ubuntu entry point
+├── install-mac.sh           # macOS entry point
+├── lib/                     # Shared helpers (component runner, VS Code profile steps)
 ├── components-global/       # Tools and settings for all contexts
 ├── components-work/         # Work-specific (Centrica/GitLab)
-├── components-personal/     # Personal use and hobbies
-├── README-INSTALL.md        # This file
-└── install-ubuntu.sh        # Original monolithic script (reference)
+└── components-personal/     # Personal use and hobbies
 ```
 
-## 🌍 Components-Global
+Each component is a numbered directory with an `install.sh` (Ubuntu), or
+`install-linux.sh`/`install-macos.sh` where it supports both platforms.
 
-Tools and configurations used regardless of work or personal context.
+## 🐧 install-ubuntu.sh
 
-### Development Tools
-- **01-initial** - Base system dependencies
-- **05-python-pip** - Python package manager
-- **08-kubectl** - Kubernetes CLI
-- **09-python-config** - Python configuration (.netrc, pip.conf, .pypirc)
-- **12-zsh** - Zsh shell with advanced keybindings
-- **13-golang** - Go programming language
-- **16-python313** - Python 3.13 runtime
-- **17-pulumi** - Infrastructure as Code
-
-### Infrastructure & Cloud
-- **18-gcloud** - Google Cloud SDK
-
-### Desktop & Terminal
-- **10-gnome-settings** - GNOME desktop customizations
-- **20-ghostty** - Ghostty terminal emulator
-
-### Media & Entertainment
-- **14-qbittorrent** - Torrent client
-- **15-vlc** - Media player
-
-### Documentation
-- [README.md](components-global/README.md) - Global components guide
-- [CONFIG-FILES.md](components-global/CONFIG-FILES.md) - Configuration file locations
-
-## 💼 Components-Work
-
-Work-related tools for Centrica development.
-
-### Editor
-- **04-vscode** - Work profile (custom keybindings, extensions) for VS Code (Stable);
-  the `code` package itself comes from `components-global/04-vscode`
-
-### Version Control & Git
-- **03-gitlab** - GitLab SSH configuration (Centrica)
-
-### Infrastructure & Cloud
-- **06-aws-vpn-client** - AWS VPN client (work network)
-- **07-aws-cli** - AWS CLI v2 (work projects)
-
-### Usage
-```bash
-cd components-work
-bash install-all.sh
-```
-
-Or individual components:
-```bash
-cd components-work/03-gitlab
-bash install.sh
-```
-
-See [components-work/README.md](components-work/README.md) for details.
-
-## 👤 Components-Personal
-
-Personal projects, browsing, and hobbies.
-
-### Editor
-- **04-vscode** - Personal profile for a self-built VS Code (Code - OSS), required for
-  unconditional proposed-API access for extensions like `bode-claude`; includes an
-  ochre-recolored desktop icon generated from the real logo installed by
-  `components-global/04-vscode`
-
-### Version Control & Git
-- **02-github** - GitHub SSH configuration (personal account)
-
-### Browsing
-- **19-chrome** - Google Chrome browser
-
-### Entertainment
-- **11-steam** - Steam gaming platform
-
-### Usage
-```bash
-cd components-personal
-bash install-all.sh
-```
-
-Or individual components:
-```bash
-cd components-personal/02-github
-bash install.sh
-```
-
-See [components-personal/README.md](components-personal/README.md) for details.
-
-## 🚀 Quick Start
-
-### Install Everything
+Runs every component in `components-global`, then `components-work`, then
+`components-personal`, each group in numeric order. It asks for your sudo password once
+up front. To run only some groups:
 
 ```bash
-# Global components (all contexts)
-cd components-global
-bash install-all.sh
-
-# Work components (Centrica projects)
-cd ../components-work
-bash install-all.sh
-
-# Personal components (personal projects)
-cd ../components-personal
-bash install-all.sh
+bash install-ubuntu.sh global work    # skip personal
 ```
 
-### Install Selectively
+| Component | Group | Purpose |
+|-----------|-------|---------|
+| 01-initial | global | Base packages (git, curl, wget, unzip, gnupg, xclip, python3-venv, Pillow, ImageMagick) |
+| 04-vscode | global | VS Code (Stable) apt package — no profile config |
+| 05-python-pip | global | pip |
+| 08-kubectl | global | Kubernetes CLI (v1.35 apt repo) |
+| 09-python-config | global | Creates empty `~/.netrc`, `~/.pip/pip.conf`, `~/.pypirc` (fill in manually) |
+| 10-gnome-settings | global | Dock scroll cycles windows, dark mode |
+| 12-zsh | global | zsh as login shell + `.zshrc` (previous one backed up) |
+| 13-golang | global | Go |
+| 14-qbittorrent | global | Torrent client |
+| 15-vlc | global | Media player |
+| 16-python313 | global | Python 3.13 (deadsnakes PPA) |
+| 17-pulumi | global | Pulumi |
+| 18-gcloud | global | Google Cloud CLI + GCR docker credential helper |
+| 20-ghostty | global | Ghostty terminal (apt, else snap) + config |
+| 03-gitlab | work | Work SSH key, `glab` install + login |
+| 04-vscode | work | VS Code **Work** profile on the Stable package |
+| 06-aws-vpn-client | work | AWS VPN client |
+| 07-aws-cli | work | AWS CLI v2 |
+| 02-github | personal | Git identity, personal SSH key |
+| 04-vscode | personal | VS Code **Personal** profile on the self-built Code - OSS (build `~/projects/vscode` first) |
+| 11-steam | personal | Steam |
+| 19-chrome | personal | Google Chrome |
+| 20-gmail | personal | venv for the Gmail filter script (needs `credentials.json`, see its README) |
 
-**For development work:**
-```bash
-cd components-global
-bash install-all.sh        # Select core tools
-cd ../components-work
-bash install-all.sh        # Add work VPN and GitLab
-```
+## 🍎 install-mac.sh
 
-**For personal projects:**
-```bash
-cd components-global
-bash install-all.sh        # Select core tools
-cd ../components-personal
-bash install-all.sh        # Add GitHub and browsing
-```
+Runs only what supports macOS:
 
-### Interactive Selection
+1. `components-global/04-vscode/install-macos.sh` — checks VS Code is installed (via
+   `brew install --cask visual-studio-code`), plus Pillow for the ochre icon
+2. `components-personal/04-vscode/install-macos.sh` — Personal profile, `Code-Personal.app`
+   wrapper with ochre icon, `code-oss-personal` launcher
+3. `components-work/04-vscode/install-macos.sh` — Work profile
+4. `components-global/12-zsh/install.sh` — `.zshrc` (previous one backed up)
 
-Each directory has `install-all.sh` with interactive mode:
+Close the Personal VS Code before running, otherwise its layout state (`state.json`) is
+skipped. If `~/zscaler-ca.pem` exists it is exported as `NODE_EXTRA_CA_CERTS` so extension
+installs work behind Zscaler.
 
-```bash
-cd components-global
-bash install-all.sh
-# Follow prompts to select components
-```
+## ✋ Manual Steps
 
-## 📋 Component Categories
+Not scriptable, do these by hand after the scripts:
 
-### By Purpose
+**Ubuntu installer**
+- Keyboard: "Belgian", variant "Belgian"; enable automatic NVIDIA driver install
+- Check `nvidia-smi` if a GPU is installed
+- Slow terminal after login with NVIDIA drivers:
+  https://bugs.launchpad.net/ubuntu/+source/nvidia-graphics-drivers-535/+bug/2042301
 
-| Purpose | Components | Location |
-|---------|-----------|----------|
-| **Version Control** | GitHub, GitLab | personal, work |
-| **Editor** | VSCode Insiders (personal), VSCode Stable (work) | personal, work |
-| **Development** | Python, Go, kubectl | global |
-| **Shell & Terminal** | Zsh, Ghostty | global |
-| **Infrastructure** | AWS, gcloud, Pulumi | work (AWS), global (gcloud/Pulumi) |
-| **Cloud & DevOps** | kubectl, gcloud, Pulumi | global |
-| **Browsers** | Chrome | personal |
-| **Media** | Steam, VLC, QBit | personal, global |
-| **System** | Initial, GNOME, Python config | global |
+**Accounts & keys**
+- Add `~/.ssh/id_ed25519_personal.pub` at https://github.com/settings/keys
+- Add `~/.ssh/id_ed25519_centrica.pub` in GitLab
+- Log out and back in so zsh becomes the login shell
+- Fill in `~/.netrc`, `~/.pip/pip.conf` and `~/.pypirc` (examples in
+  `components-global/09-python-config/install.sh`)
+- For GCR pulls, add to `~/.docker/config.json`:
+  ```json
+  { "credHelpers": { "europe-west1-docker.pkg.dev": "gcr" } }
+  ```
 
-### By Context
+**Firefox**
+- Log in; extensions: ClearURLs, Privacy Badger, uBlock Origin; set up profiles
+- `about:config` → `identity.fxaccounts.toolbar.pxiToolbarEnabled` → off
+- Theme: light mode in Settings
 
-**Global (Install for all setups):**
-All of components-global
+**Outlook (web)**
+- If it misbehaves, try a hard refresh
 
-**Work Setup (Centrica):**
-components-global + components-work
+**Steam / Hearthstone**
+- Optional 32-bit NVIDIA libraries:
+  `sudo dpkg --add-architecture i386 && sudo apt update && sudo apt install libnvidia-gl-590:i386`
+- Hearthstone: `mkdir -p ~/.steam/debian-installation/steamapps/common/Hearthstone`, put
+  `Battle.net-Setup.exe` there, then in Steam: Add a Game → Add a Non-Steam Game → select
+  it, and set compatibility to "Proton Hotfix"
 
-**Personal Setup:**
-components-global + components-personal
+**macOS terminal**
+- Remove macOS's conflicting keyboard shortcuts (some need rebinding even when inactive)
+- iTerm2: Profile → Keys → load `components-global/12-zsh/iterm2-keymap.json`, and enable
+  "Report keys using CSI u mode"
 
-**Full Setup (Both work and personal):**
-All three directories
+## 🔑 Configuration Files
 
-## 🔑 Key Configuration Files
-
-Configuration files are organized with their components:
-
-- **04-vscode** (personal and work, separately): `keybindings.json`, `settings.json`, `extensions.json`
+- **04-vscode** (personal and work, separately): `keybindings.json`, `settings.json`,
+  `extensions.json` (+ `state.json`, `product.overrides.json` for Personal)
 - **12-zsh**: `.zshrc`, `iterm2-keymap.json`
 - **20-ghostty**: `ghostty-config`
 
-See [CONFIG-FILES.md](components-global/CONFIG-FILES.md) for complete mapping.
-
-## 🔄 Recommended Installation Order
-
-For a fresh Ubuntu setup:
-
-### Phase 1: Base System (Required)
-1. components-global/**01-initial** - System dependencies
-2. components-global/**04-vscode** - VS Code (Stable) apt package (needed by both profiles below)
-
-### Phase 2: Development Environment (Choose based on context)
-
-**For work (Centrica):**
-1. components-work/**04-vscode** - Work profile config for the VS Code package installed above
-2. components-work/**03-gitlab** - GitLab SSH keys
-3. components-work/**06-aws-vpn-client** - Work VPN
-4. components-work/**07-aws-cli** - AWS tooling
-
-**For personal projects:**
-1. components-personal/**04-vscode** - Self-built VS Code (Code - OSS) + Personal profile
-2. components-personal/**02-github** - GitHub SSH keys
-
-### Phase 3: Development Tools (For all)
-3. components-global/**05-python-pip** - Python
-4. components-global/**12-zsh** - Shell (requires logout)
-5. components-global/**13-golang** - Go
-6. components-global/**16-python313** - Python 3.13
-7. components-global/**08-kubectl** - Kubernetes
-8. components-global/**09-python-config** - Config files
-
-### Phase 4: Infrastructure (Optional)
-9. components-global/**17-pulumi** - Infrastructure as Code
-10. components-global/**18-gcloud** - Google Cloud
-
-### Phase 5: Desktop & Terminal (Optional)
-11. components-global/**10-gnome-settings** - Desktop tweaks
-12. components-global/**20-ghostty** - Terminal emulator
-
-### Phase 6: Media & Browsers (Optional)
-13. components-global/**14-qbittorrent** - Torrents
-14. components-global/**15-vlc** - Media player
-15. components-personal/**19-chrome** - Web browser
-16. components-personal/**11-steam** - Gaming
-
-## 📖 Individual Component Docs
-
-Each component has detailed documentation:
-
-```bash
-# View component README
-cat components-personal/04-vscode/README.md
-cat components-work/04-vscode/README.md
-cat components-work/03-gitlab/README.md
-cat components-personal/02-github/README.md
-```
-
-## 🛠️ Customization
-
-### Modify Components
-
-Edit component scripts before installing:
-
-```bash
-# View before installing
-cat components-global/01-initial/install.sh
-
-# Edit if needed
-nano components-global/01-initial/install.sh
-
-# Then install
-bash components-global/01-initial/install.sh
-```
-
-### Update Configurations
-
-Configuration files are stored with their components. Edit and re-run install for the appropriate profile:
-
-```bash
-# Edit personal VSCode config
-nano components-personal/04-vscode/keybindings.json
-
-# Re-run personal profile install
-cd components-personal/04-vscode && bash install.sh
-```
-
-Or for work:
-
-```bash
-# Edit work VSCode config
-nano components-work/04-vscode/keybindings.json
-
-# Re-run work profile install
-cd components-work/04-vscode && bash install.sh
-```
-
-## 🚨 Important Notes
-
-### After Installation
-
-**Zsh Shell** (components-global/12-zsh)
-- Requires logout/login to become default shell
-- Or run: `exec zsh`
-
-**VSCode Profiles**
-- Personal projects use VS Code **Insiders**; work projects use VS Code **Stable** — each
-  installs its own package, no shared/global VS Code component exists anymore
-- Personal profile + package install is in `components-personal/04-vscode/`
-- Work profile + package install is in `components-work/04-vscode/`
-- The `.zshrc` wrapper auto-selects `~/.vscode-work` (Stable) or `~/.vscode-personal-insiders`
-  (Insiders, with `--enable-proposed-api=local.bode-claude`) based on project path
-
-**AWS VPN** (components-work/06-aws-vpn-client)
-- Work-only component
-- Not needed for personal projects
-
-### Backup Existing Configs
-
-Before installing, backup existing configurations:
-
-```bash
-cp ~/.zshrc ~/.zshrc.backup
-cp -r ~/.config/Code ~/.config/Code.backup
-cp -r ~/.config/ghostty ~/.config/ghostty.backup
-```
-
-### Version Control
-
-Track your customizations:
-
-```bash
-cd ~/projects/pc
-git add components-global/ components-work/ components-personal/
-git commit -m "Installed and customized installation components"
-```
-
-## 📊 Component Summary
-
-| Component | Global | Work | Personal | Purpose |
-|-----------|--------|------|----------|---------|
-| 01-initial | ✓ | - | - | Base dependencies |
-| 02-github | - | - | ✓ | Personal Git SSH |
-| 03-gitlab | - | ✓ | - | Work Git SSH |
-| 04-vscode | ✓ | ✓ | ✓ | Global: `code` apt package. Work: profile config on top of it. Personal: self-built binary + Work's real icon recolored ochre |
-| 05-python-pip | ✓ | - | - | Python package manager |
-| 06-aws-vpn-client | - | ✓ | - | Work VPN |
-| 07-aws-cli | - | ✓ | - | AWS tools |
-| 08-kubectl | ✓ | - | - | Kubernetes CLI |
-| 09-python-config | ✓ | - | - | Python config |
-| 10-gnome-settings | ✓ | - | - | Desktop settings |
-| 11-steam | - | - | ✓ | Gaming |
-| 12-zsh | ✓ | - | - | Shell |
-| 13-golang | ✓ | - | - | Go language |
-| 14-qbittorrent | ✓ | - | - | Torrents |
-| 15-vlc | ✓ | - | - | Media player |
-| 16-python313 | ✓ | - | - | Python 3.13 |
-| 17-pulumi | ✓ | - | - | Infrastructure as Code |
-| 18-gcloud | ✓ | - | - | Google Cloud SDK |
-| 19-chrome | - | - | ✓ | Web browser |
-| 20-ghostty | ✓ | - | - | Terminal emulator |
+Edit them here and re-run the entry script (or just that component). See
+[CONFIG-FILES.md](components-global/CONFIG-FILES.md) for where each one is installed.
 
 ## 🔗 Related Documentation
 
-- [components-global/README.md](components-global/README.md) - Global components guide
-- [components-global/CONFIG-FILES.md](components-global/CONFIG-FILES.md) - Configuration file locations
-- [components-global/QUICK-START.md](components-global/QUICK-START.md) - Quick reference
-- [components-work/README.md](components-work/README.md) - Work components guide
-- [components-personal/README.md](components-personal/README.md) - Personal components guide
-
-## ❓ FAQ
-
-**Q: Should I install all components?**
-A: No, install only what you need. At minimum: global + (work OR personal based on your needs).
-
-**Q: Can I install both work and personal?**
-A: Yes! Install all three directories for full setup.
-
-**Q: How do I use VSCode for both work and personal?**
-A: The `.zshrc` automatically selects the right profile. Use `code` command from the project directory.
-
-**Q: Can I install components in any order?**
-A: Not entirely. Install 01-initial first, then 12-zsh (needs logout), then others.
-
-**Q: What if I mess up my shell config?**
-A: Restore from backup: `cp ~/.zshrc.backup ~/.zshrc`
-
-**Q: Do I need AWS components for personal projects?**
-A: Only if you use AWS for personal projects. Otherwise, skip 06-aws-vpn-client and 07-aws-cli.
-
-## 📞 Support
-
-For component-specific help:
-1. Check the component's README.md
-2. Review install.sh script comments
-3. Refer to upstream project documentation
-4. Check the CONFIG-FILES.md for configuration details
-
-## 🎯 Next Steps
-
-1. Choose your context (work/personal/both)
-2. Run appropriate `install-all.sh` scripts
-3. Review and customize configurations as needed
-4. Test installation: `which zsh`, `code --version`, etc.
-5. Bookmark this README for future reference
+- [components-global/README.md](components-global/README.md)
+- [components-work/README.md](components-work/README.md)
+- [components-personal/README.md](components-personal/README.md)
+- [components-personal/04-vscode/README.md](components-personal/04-vscode/README.md) and
+  [components-work/04-vscode/README.md](components-work/04-vscode/README.md) for the VS Code
+  profile details
