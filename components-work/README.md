@@ -158,7 +158,7 @@ With VSCode installed (components-global), work projects automatically use:
 ~/.vscode-work/
 ```
 
-The `.zshrc` `code` command detects paths under `/Users/fred/centrica/` and uses work profile.
+The `.zshrc` `code` command detects paths under `~/centrica/` and uses work profile.
 
 ### Git Configuration
 
@@ -175,7 +175,7 @@ git config user.name "Frederik Bode"
 Or set globally for work directory:
 ```bash
 # In ~/.gitconfig under [includeIf]
-[includeIf "gitdir:/Users/fred/centrica/"]
+[includeIf "gitdir:~/centrica/"]
     path = ~/.gitconfig-work
 ```
 
@@ -276,8 +276,8 @@ If you have both Centrica work and personal projects:
 3. Install `components-personal` for personal setup (separate GitHub, Chrome)
 
 VSCode automatically selects profile based on directory:
-- `/Users/fred/centrica/*` → work profile
-- `/Users/fred/projects/*` → personal profile
+- `~/centrica/*` → work profile
+- `~/projects/*` → personal profile
 
 ## 🆘 Troubleshooting
 

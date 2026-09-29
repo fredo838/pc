@@ -157,8 +157,8 @@ fi
 # VSCODE_DEV is set.
 code_oss_personal() {
   if [[ "$OSTYPE" == "darwin"* ]]; then
-    # On macOS, launch via app wrapper for the ochre icon
-    # Pass folder path via environment variable
+    # On macOS, launch via app wrapper for the ochre icon, passing the
+    # folder as an absolute path (open runs the wrapper with cwd=/)
     local folder=""
     for arg in "$@"; do
       if [[ ! "$arg" =~ ^- ]]; then
@@ -200,10 +200,10 @@ code() {
   fi
 
   case "$target" in
-    /Users/fred/centrica/*|/Users/fred/centrica|/home/fred/centrica/*|/home/fred/centrica)
+    "$HOME"/centrica/*|"$HOME"/centrica)
       command code --user-data-dir ~/.vscode-work --extensions-dir ~/.vscode-work-ext --profile Work "$@"
       ;;
-    /Users/fred/projects/*|/Users/fred/projects|/home/fred/projects/*|/home/fred/projects)
+    "$HOME"/projects/*|"$HOME"/projects)
       code_oss_personal "$@"
       ;;
     *)

@@ -9,11 +9,9 @@ VSCODE_ROOT="$HOME/projects/vscode"
 CODE_APP="$VSCODE_ROOT/.build/electron/Code - OSS.app"
 CODE_BIN="$CODE_APP/Contents/MacOS/Code - OSS"
 PROFILE_DIR="$HOME/.vscode-personal/user-data"
-USER_ROOT="$PROFILE_DIR/User"
 EXTENSIONS_DIR="$HOME/.vscode-personal/extensions"
 PROFILE_NAME="Personal"
 PROFILE_ICON="heart"
-STORAGE_FILE="$USER_ROOT/globalStorage/storage.json"
 
 # Check if the self-built VS Code binary exists
 if [ ! -x "$CODE_BIN" ]; then
@@ -29,221 +27,25 @@ fi
 # Copy product.overrides.json to use open-vsx marketplace
 cp "$SCRIPT_DIR/product.overrides.json" "$VSCODE_ROOT/product.overrides.json"
 
-# Helper function for GUI launches
-code_oss() {
-  VSCODE_DEV=1 NODE_ENV=development "$CODE_BIN" "$VSCODE_ROOT" "$@"
-}
-
-# Helper function for CLI operations (extension management)
-code_oss_cli() {
-  NODE_NO_WARNINGS=1 ELECTRON_RUN_AS_NODE=1 VSCODE_DEV=1 NODE_ENV=development "$CODE_BIN" "$VSCODE_ROOT/out/cli.js" "$VSCODE_ROOT" "$@" < /dev/null
+# Headless CLI entry (out/cli.js) for extension management, run as plain
+# Node against the Electron binary. VSCODE_ROOT is Electron's app locator
+# for this unpackaged dev build; VS Code only strips it back out of argv
+# (instead of treating it as a folder) when VSCODE_DEV is set.
+vscode_cli() {
+  NODE_NO_WARNINGS=1 ELECTRON_RUN_AS_NODE=1 VSCODE_DEV=1 NODE_ENV=development "$CODE_BIN" "$VSCODE_ROOT/out/cli.js" "$VSCODE_ROOT" "$@"
 }
 
 echo "✓ Found self-built VS Code binary: $CODE_BIN"
 
-mkdir -p "$USER_ROOT"
-mkdir -p "$EXTENSIONS_DIR"
+source "$SCRIPT_DIR/../../lib/vscode-profile.sh"
 
-# Ensure the named profile exists in this user-data-dir.
-code_oss_cli --user-data-dir="$PROFILE_DIR" --extensions-dir="$EXTENSIONS_DIR" --profile="$PROFILE_NAME" --list-extensions >/dev/null 2>&1 || true
-
-PROFILE_ID="$(python3 - "$STORAGE_FILE" "$PROFILE_NAME" "$PROFILE_ICON" <<'PY'
-import hashlib
-import json
-import os
-import sys
-
-storage_file, profile_name, profile_icon = sys.argv[1], sys.argv[2], sys.argv[3]
-
-data = {}
-if os.path.exists(storage_file):
-  with open(storage_file, "r", encoding="utf-8") as f:
-    data = json.load(f)
-
-profiles = data.get("userDataProfiles")
-if not isinstance(profiles, list):
-  profiles = []
-
-profile = None
-for candidate in profiles:
-  if isinstance(candidate, dict) and candidate.get("name") == profile_name:
-    profile = candidate
-    break
-
-if profile is None:
-  used_locations = {
-    item.get("location")
-    for item in profiles
-    if isinstance(item, dict) and isinstance(item.get("location"), str)
-  }
-  location = hashlib.sha1(profile_name.encode("utf-8")).hexdigest()[:8]
-  while location in used_locations:
-    location = hashlib.sha1((location + profile_name).encode("utf-8")).hexdigest()[:8]
-  profile = {"location": location, "name": profile_name, "icon": profile_icon}
-  profiles.append(profile)
-else:
-  profile["icon"] = profile_icon
-
-data["userDataProfiles"] = profiles
-os.makedirs(os.path.dirname(storage_file), exist_ok=True)
-with open(storage_file, "w", encoding="utf-8") as f:
-  json.dump(data, f, indent=4)
-  f.write("\n")
-
-print(profile.get("location", ""))
-PY
-)"
-
-if [ -z "$PROFILE_ID" ]; then
-  echo "⚠ Failed to resolve VS Code profile id for $PROFILE_NAME"
-  exit 1
-fi
-
-USER_DIR="$USER_ROOT/profiles/$PROFILE_ID"
-mkdir -p "$USER_DIR"
-
-echo "Installing personal VS Code profile config to: $USER_DIR"
-for filename in keybindings.json settings.json; do
-  if [ -f "$SCRIPT_DIR/$filename" ]; then
-    cp "$SCRIPT_DIR/$filename" "$USER_DIR/$filename"
-    echo "✓ $filename"
-  else
-    echo "⚠ $filename not found in $SCRIPT_DIR"
-  fi
-done
-
-# security.workspace.trust.enabled is an "application" scope setting in VS Code:
-# such settings are shared across all profiles and are only ever read from the
-# root/default profile's User/settings.json, never from a named profile's
-# settings.json. Without this, the value above is silently ignored and
-# Restricted Mode still prompts.
-echo "Applying application-scope settings to root User/settings.json: $USER_ROOT/settings.json"
-python3 - "$SCRIPT_DIR/settings.json" "$USER_ROOT/settings.json" <<'PY'
-import json
-import sys
-
-src_file, dest_file = sys.argv[1], sys.argv[2]
-APPLICATION_SCOPE_KEYS = {"security.workspace.trust.enabled"}
-
-with open(src_file, "r", encoding="utf-8") as f:
-    src = json.load(f)
-
-try:
-    with open(dest_file, "r", encoding="utf-8") as f:
-        dest = json.load(f)
-except FileNotFoundError:
-    dest = {}
-
-for key in APPLICATION_SCOPE_KEYS:
-    if key in src:
-        dest[key] = src[key]
-
-with open(dest_file, "w", encoding="utf-8") as f:
-    json.dump(dest, f, indent=4)
-    f.write("\n")
-PY
-echo "✓ application-scope settings"
-
-# Some layout values (e.g. panel alignment) are no longer settings: VS Code
-# keeps them in its state DB, so settings.json can't set them. Write
-# state.json into it directly. VS Code flushes its in-memory state on exit,
-# so this only sticks while the Personal instance is closed.
-if pgrep -f -- "--user-data-dir=$PROFILE_DIR" >/dev/null; then
-  echo "⚠ Personal VS Code is running; close it and re-run to apply state.json"
-else
-  for db in "$USER_ROOT/globalStorage/state.vscdb" "$USER_DIR/globalStorage/state.vscdb"; do
-    [ -f "$db" ] || continue
-    python3 - "$SCRIPT_DIR/state.json" "$db" <<'PY'
-import json
-import sqlite3
-import sys
-
-with open(sys.argv[1], "r", encoding="utf-8") as f:
-    state = json.load(f)
-
-conn = sqlite3.connect(sys.argv[2])
-with conn:
-    conn.executemany(
-        "INSERT OR REPLACE INTO ItemTable (key, value) VALUES (?, ?)",
-        [(k, v if isinstance(v, str) else json.dumps(v)) for k, v in state.items()],
-    )
-conn.close()
-PY
-    echo "✓ state.json -> $db"
-  done
-fi
-
-# VS Code owns profile-level extensions.json with a strict schema.
-# Keep recommendations only in this component directory for installation input.
-if [ -f "$USER_DIR/extensions.json" ]; then
-  rm -f "$USER_DIR/extensions.json"
-fi
-
-echo ""
-
-echo "Installing personal VS Code extensions to: $EXTENSIONS_DIR"
-python3 -c 'import json, sys; print("\n".join(json.load(open(sys.argv[1])).get("recommendations", [])))' "$SCRIPT_DIR/extensions.json" | while IFS= read -r extension; do
-  if [ -n "$extension" ]; then
-    output="$(code_oss_cli --user-data-dir="$PROFILE_DIR" --extensions-dir="$EXTENSIONS_DIR" --profile="$PROFILE_NAME" --install-extension="$extension" --force 2>&1)" || true
-    if printf '%s\n' "$output" | grep -q "already installed\|already exists"; then
-      echo "✓ $extension (already installed)"
-    elif printf '%s\n' "$output" | grep -q "built-in extension.*cannot be downgraded"; then
-      echo "✓ $extension (built-in)"
-    elif printf '%s\n' "$output" | grep -q "Successfully installed"; then
-      echo "✓ $extension"
-    elif printf '%s\n' "$output" | grep -qE 'Failed Installing Extensions|unable to get|certificate'; then
-      echo "⚠ $extension (network/certificate issue - may be installed on next sync)"
-    else
-      echo "✓ $extension (installed)"
-    fi
-  fi
-done
-
-# ms-python.python ships an extensionPack (vscode-pylance, debugpy,
-# vscode-python-envs) that VS Code auto-installs alongside it. This
-# profile only wants the core Python extension: Ty is the language
-# server, Ruff formats/lints, and we don't use VS Code's debugger or
-# the newer environment-manager UI. Remove the unwanted pack members
-# after install since --install-extension has no flag to skip them.
-echo ""
-echo "Removing extensions bundled by ms-python.python's extension pack:"
-for ext in ms-python.vscode-pylance ms-python.debugpy ms-python.vscode-python-envs; do
-  if code_oss_cli --user-data-dir="$PROFILE_DIR" --extensions-dir="$EXTENSIONS_DIR" --profile="$PROFILE_NAME" --list-extensions 2>/dev/null | grep -qix "$ext"; then
-    echo "Uninstalling extension: $ext"
-    code_oss_cli --user-data-dir="$PROFILE_DIR" --extensions-dir="$EXTENSIONS_DIR" --profile="$PROFILE_NAME" --uninstall-extension="$ext" >/dev/null 2>&1 \
-      || echo "⚠ Failed to uninstall $ext"
-  fi
-done
-
-# The profile-scoped extensions.json can drift from what's actually on
-# disk in $EXTENSIONS_DIR. Prune any entry whose folder no longer exists.
-if [ -f "$USER_DIR/extensions.json" ]; then
-  echo "Reconciling profile extensions manifest with $EXTENSIONS_DIR contents"
-  python3 - "$USER_DIR/extensions.json" <<'PY'
-import json
-import os
-import sys
-
-manifest_file = sys.argv[1]
-
-with open(manifest_file, "r", encoding="utf-8") as f:
-    entries = json.load(f)
-
-kept = []
-for entry in entries:
-    path = entry.get("location", {}).get("path")
-    if path and os.path.isdir(path):
-        kept.append(entry)
-    else:
-        identifier = entry.get("identifier", {}).get("id")
-        print(f"⚠ Removing stale extension entry: {identifier} -> {path}")
-
-if len(kept) != len(entries):
-    with open(manifest_file, "w", encoding="utf-8") as f:
-        json.dump(kept, f, indent=4)
-        f.write("\n")
-PY
-fi
+vscode_profile_register
+vscode_profile_copy_config
+vscode_profile_apply_app_settings
+vscode_profile_apply_state
+vscode_profile_install_extensions
+vscode_profile_remove_python_pack
+vscode_profile_reconcile_manifest
 
 echo ""
 
@@ -256,9 +58,20 @@ mkdir -p "$LAUNCH_DIR"
 
 cat > "$LAUNCH_SCRIPT" <<'LAUNCHER'
 #!/bin/bash
-# Launcher for self-built VS Code Personal profile on macOS
-# Launch via the app wrapper to ensure the ochre icon appears in the dock
-exec open -a "Code-Personal" "$@"
+# Launcher for self-built VS Code Personal profile on macOS.
+# Launch via the app wrapper so the ochre icon appears in the dock. `open`
+# runs the wrapper with cwd=/ and only forwards argv after --args, so
+# resolve paths here and force a fresh wrapper process with -n (otherwise
+# `open` just activates a running one and the folder never arrives).
+ARGS=()
+for arg in "$@"; do
+  if [[ "$arg" != -* && -e "$arg" ]]; then
+    ARGS+=("$(cd "$(dirname "$arg")" && pwd)/$(basename "$arg")")
+  else
+    ARGS+=("$arg")
+  fi
+done
+exec open -n -a "Code-Personal" --args "${ARGS[@]}"
 LAUNCHER
 
 chmod +x "$LAUNCH_SCRIPT"
@@ -275,13 +88,9 @@ mkdir -p "$WRAPPER_MACOS"
 # Create the launcher script inside the app bundle
 cat > "$WRAPPER_MACOS/Code-Personal" <<'APPWRAPPER'
 #!/bin/bash
-# Handle folder passed via VSCODE_FOLDER_TO_OPEN environment variable
+# Arguments arrive via `open -n -a Code-Personal --args ...` (see the
+# code_oss_personal function in components-global/12-zsh/.zshrc).
 ARGS=()
-if [[ -n "$VSCODE_FOLDER_TO_OPEN" ]]; then
-  ARGS+=("$VSCODE_FOLDER_TO_OPEN")
-fi
-
-# Also handle command line arguments
 for arg in "$@"; do
   case "$arg" in
     -*)
@@ -411,5 +220,5 @@ echo ""
 echo "To launch the Personal profile, you can use:"
 echo "  code-oss-personal [folder]"
 echo "or"
-echo "  open -a 'Code-Personal' [folder]"
+echo "  open -n -a 'Code-Personal' --args /absolute/path/to/folder"
 echo ""

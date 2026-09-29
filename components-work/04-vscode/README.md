@@ -38,7 +38,7 @@ bash components-work/04-vscode/install-macos.sh      # macOS
 
 ```bash
 # Automatic via shell wrapper (if configured in ~/.zshrc)
-code  # auto-selects Work profile for /Users/fred/centrica paths
+code  # auto-selects Work profile for ~/centrica paths
 
 # Explicit
 code --user-data-dir ~/.vscode-work --extensions-dir ~/.vscode-work-ext --profile Work

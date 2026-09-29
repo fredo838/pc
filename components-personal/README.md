@@ -186,7 +186,7 @@ personal projects automatically use:
 ~/.vscode-personal-insiders/
 ```
 
-The `.zshrc` `code` command detects paths under `/home/fred/projects/` and launches
+The `.zshrc` `code` command detects paths under `~/projects/` and launches
 `code-insiders` with the personal profile.
 
 ### Git Configuration
@@ -195,7 +195,7 @@ Global git config is set up in `components-personal/02-github`:
 - Email: `fredo.bode@gmail.com`
 - Name: `Frederik Bode`
 
-This is automatically applied to personal projects in `/Users/fred/projects/`.
+This is automatically applied to personal projects in `~/projects/`.
 
 ## 🌐 GitHub Integration
 
@@ -345,8 +345,8 @@ If you have both Centrica work and personal accounts:
 3. Install `components-personal` for personal setup
 
 VSCode automatically selects profile based on directory:
-- `/Users/fred/centrica/*` → work profile, work GitLab
-- `/Users/fred/projects/*` → personal profile, personal GitHub
+- `~/centrica/*` → work profile, work GitLab
+- `~/projects/*` → personal profile, personal GitHub
 
 Chrome can use different profiles:
 - Settings > Manage profiles > Create new profile

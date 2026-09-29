@@ -1,8 +1,9 @@
 # pc — Personal Machine Setup & Dotfiles
 
 This repository holds the configuration, dotfiles, and installation notes I use to
-bootstrap a fresh workstation. It targets **Ubuntu Linux** (with a Belgian keyboard
-layout and NVIDIA drivers) as the primary platform.
+bootstrap a fresh workstation. Full machine setup targets **Ubuntu Linux** (with a
+Belgian keyboard layout and NVIDIA drivers); the VS Code profiles and zsh config
+(everything [update.sh](update.sh) applies) also support **macOS**.
 
 The goal is to be able to go from a clean OS install to a fully configured
 development environment — terminal, editor, shell, and tooling — in a repeatable way.
@@ -17,6 +18,10 @@ Configuration is organized into modular components, grouped by context:
   Chrome, Steam, and the self-built VS Code **Personal** profile)
 - **[components-work/](components-work/)** — work-only tools (GitLab SSH, AWS, and the
   VS Code **Work** profile, built on the Stable package from components-global)
+
+- **[lib/](lib/)** — shell helpers shared by components;
+  [vscode-profile.sh](lib/vscode-profile.sh) holds the profile/settings/extension steps
+  used by both `04-vscode` installers on both platforms
 
 Each component is a numbered directory (e.g. `12-zsh/`) with its own `install.sh` and,
 where relevant, the config files it deploys.
@@ -48,5 +53,5 @@ cat README-INSTALL.md
   real logo as the source for its own ochre-recolored icon. See
   `components-personal/04-vscode/README.md` and `components-work/04-vscode/README.md`.
 - The `.zshrc` `code` function auto-selects the right VS Code channel/profile based on
-  the target directory (`/home/fred/centrica/*` → work, `/home/fred/projects/*` →
+  the target directory (`~/centrica/*` → work, `~/projects/*` →
   personal).
