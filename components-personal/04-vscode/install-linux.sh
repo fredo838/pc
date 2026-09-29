@@ -200,6 +200,35 @@ with open(dest_file, "w", encoding="utf-8") as f:
 PY
 echo "✓ application-scope settings"
 
+# Some layout values (e.g. panel alignment) are no longer settings: VS Code
+# keeps them in its state DB, so settings.json can't set them. Write
+# state.json into it directly. VS Code flushes its in-memory state on exit,
+# so this only sticks while the Personal instance is closed.
+if pgrep -f -- "--user-data-dir=$PROFILE_DIR" >/dev/null; then
+  echo "⚠ Personal VS Code is running; close it and re-run to apply state.json"
+else
+  for db in "$USER_ROOT/globalStorage/state.vscdb" "$USER_DIR/globalStorage/state.vscdb"; do
+    [ -f "$db" ] || continue
+    python3 - "$SCRIPT_DIR/state.json" "$db" <<'PY'
+import json
+import sqlite3
+import sys
+
+with open(sys.argv[1], "r", encoding="utf-8") as f:
+    state = json.load(f)
+
+conn = sqlite3.connect(sys.argv[2])
+with conn:
+    conn.executemany(
+        "INSERT OR REPLACE INTO ItemTable (key, value) VALUES (?, ?)",
+        [(k, v if isinstance(v, str) else json.dumps(v)) for k, v in state.items()],
+    )
+conn.close()
+PY
+    echo "✓ state.json -> $db"
+  done
+fi
+
 # VS Code owns profile-level extensions.json with a strict schema.
 # Keep recommendations only in this component directory for installation input.
 if [ -f "$USER_DIR/extensions.json" ]; then
