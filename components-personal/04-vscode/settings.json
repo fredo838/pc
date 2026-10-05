@@ -1,4 +1,5 @@
 {
+    "window.restoreWindows": "none",
     "terminal.integrated.profiles.linux": {
         "zsh": {
             "path": "zsh"
