@@ -19,17 +19,10 @@ Centrica-specific development tools and infrastructure for work projects.
 
 ### Install All Work Components
 
-```bash
-cd components-work
-bash install-all.sh all
-```
-
-### Interactive Selection
+From the repo root (Ubuntu):
 
 ```bash
-cd components-work
-bash install-all.sh
-# Follow prompts to select components
+bash install-ubuntu.sh work
 ```
 
 ### Install Individual Component
@@ -57,7 +50,6 @@ components-work/
 │   └── install.sh
 ├── 07-aws-cli/
 │   └── install.sh
-├── install-all.sh          (Master script)
 └── README.md               (This file)
 ```
 
@@ -142,13 +134,7 @@ ssh-add -l
 For full work environment, install both:
 
 ```bash
-# Install global components first
-cd components-global
-bash install-all.sh all
-
-# Then install work components
-cd ../components-work
-bash install-all.sh all
+bash install-ubuntu.sh global work
 ```
 
 ### VSCode Profiles
@@ -158,7 +144,7 @@ With VSCode installed (components-global), work projects automatically use:
 ~/.vscode-work/
 ```
 
-The `.zshrc` `code` command detects paths under `/Users/fred/centrica/` and uses work profile.
+The `.zshrc` `code` command detects paths under `~/centrica/` and uses work profile.
 
 ### Git Configuration
 
@@ -175,7 +161,7 @@ git config user.name "Frederik Bode"
 Or set globally for work directory:
 ```bash
 # In ~/.gitconfig under [includeIf]
-[includeIf "gitdir:/Users/fred/centrica/"]
+[includeIf "gitdir:~/centrica/"]
     path = ~/.gitconfig-work
 ```
 
@@ -276,8 +262,8 @@ If you have both Centrica work and personal projects:
 3. Install `components-personal` for personal setup (separate GitHub, Chrome)
 
 VSCode automatically selects profile based on directory:
-- `/Users/fred/centrica/*` → work profile
-- `/Users/fred/projects/*` → personal profile
+- `~/centrica/*` → work profile
+- `~/projects/*` → personal profile
 
 ## 🆘 Troubleshooting
 
@@ -351,7 +337,7 @@ Refer to upstream documentation:
 ## 🎯 Next Steps
 
 1. Install global components first (if not already done)
-2. Run `install-all.sh` with interactive selection
+2. Run `bash install-ubuntu.sh work` from the repo root (or a single component's `install.sh`)
 3. Generate GitLab SSH key and add to account
 4. Configure AWS credentials
 5. Test VPN connection

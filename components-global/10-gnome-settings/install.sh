@@ -1,6 +1,8 @@
 #!/bin/bash
 # GNOME desktop environment settings
 
+set -e
+
 echo "Configuring GNOME settings..."
 
 # Set window cycling mode to cycle-windows (scroll action on dash)

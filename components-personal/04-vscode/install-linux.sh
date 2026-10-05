@@ -6,38 +6,40 @@ set -e
 
 # If this script runs from a terminal already hosted inside an Electron
 # process (e.g. VS Code's own integrated terminal), these leak into our
-# environment and make a plain `code_oss` GUI launch below run out/main.js
-# as plain Node instead of as Electron, breaking with "does not provide an
+# environment and would make any GUI launch of $CODE_BIN run out/main.js as
+# plain Node instead of as Electron, breaking with "does not provide an
 # export named 'Menu'" or similar. Unset them here as the default; the CLI
 # helper below re-adds ELECTRON_RUN_AS_NODE=1 deliberately, only for itself.
 unset ELECTRON_RUN_AS_NODE
 unset ELECTRON_NO_ATTACH_CONSOLE
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../../lib/component.sh"
 VSCODE_ROOT="$HOME/projects/vscode"
 CODE_BIN="$VSCODE_ROOT/.build/electron/code-oss"
 PROFILE_DIR="$HOME/.vscode-personal/user-data"
-USER_ROOT="$PROFILE_DIR/User"
 EXTENSIONS_DIR="$HOME/.vscode-personal/extensions"
 PROFILE_NAME="Personal"
 PROFILE_ICON="heart"
-STORAGE_FILE="$USER_ROOT/globalStorage/storage.json"
 
 # This component configures the "Personal" profile for the self-built VS Code
 # checked out at $VSCODE_ROOT (see components-personal/04-vscode/README.md for
 # why: proposed-API access for the bode-claude extension's native chat
 # integration). Building it is that repo's own responsibility
 # (bash install.sh, npm run compile, npm run electron) -- this script only
-# fails fast with instructions if the build isn't there yet.
-if [ ! -x "$CODE_BIN" ]; then
-  echo "⚠ Self-built VS Code binary not found at $CODE_BIN"
-  echo "  Build it first (scripts/code.sh normally does this on first launch"
-  echo "  via preLaunch.ts, but this wrapper bypasses that script):"
-  echo "    cd $VSCODE_ROOT"
-  echo "    bash install.sh   # npm install"
-  echo "    npm run compile   # builds ./out"
-  echo "    npm run electron  # fetches .build/electron"
-  exit 1
+# skips with instructions for whichever step hasn't been done yet.
+# (scripts/code.sh normally builds on first launch via preLaunch.ts, but the
+# launchers here bypass that script.)
+if [ ! -d "$VSCODE_ROOT/.git" ]; then
+  skip_component "self-built VS Code not checked out at $VSCODE_ROOT" \
+    "git clone https://github.com/microsoft/vscode.git $VSCODE_ROOT" \
+    "then: cd $VSCODE_ROOT && bash install.sh && npm run compile && npm run electron"
+elif [ ! -f "$VSCODE_ROOT/out/cli.js" ]; then
+  skip_component "self-built VS Code not compiled ($VSCODE_ROOT/out/cli.js missing)" \
+    "cd $VSCODE_ROOT && bash install.sh && npm run compile && npm run electron"
+elif [ ! -x "$CODE_BIN" ]; then
+  skip_component "self-built VS Code Electron binary missing ($CODE_BIN)" \
+    "cd $VSCODE_ROOT && npm run electron"
 fi
 
 # Vanilla Code-OSS ships with no extensionsGallery in product.json at all --
@@ -54,31 +56,17 @@ cp "$SCRIPT_DIR/product.overrides.json" "$VSCODE_ROOT/product.overrides.json"
 
 # This is an unpackaged dev build (no app.asar), so unlike the packaged
 # apt-installed code/code-insiders binaries, Electron doesn't know what app
-# to load unless told: the raw binary run with no arguments just shows
-# Electron's own generic "To run a local app..." placeholder window. The fix
-# is to pass VSCODE_ROOT as the first positional arg (Electron's app
-# locator) -- but VS Code's own CLI arg parser (argvHelper.ts) only strips
-# that arg back out of its argv, instead of treating it as a folder to open
-# alongside whatever real target follows, when VSCODE_DEV is set. Wrap every
-# call so both are always correct together. This is the GUI/main-process
-# entry point -- fine for opening editor windows, but src/vs/code/
-# electron-main/main.ts has no idea what --list-extensions/
-# --install-extension/--uninstall-extension even are (only
-# src/vs/code/node/cli.ts does), so it just opens an empty window instead of
-# doing anything with them. Use code_oss_cli below for extension management.
-code_oss() {
-  VSCODE_DEV=1 NODE_ENV=development "$CODE_BIN" "$VSCODE_ROOT" "$@"
-}
-
-# The headless CLI entry (out/cli.js -> cliProcessMain.ts), reached by
-# running code-oss as plain Node (ELECTRON_RUN_AS_NODE=1) against that
-# script instead of the main Electron entry. Needs VSCODE_ROOT and
-# VSCODE_DEV=1 for the same app-locator-stripping reason as code_oss above
-# (cli.ts's own argv parsing has the identical convention: `Electron cli.js
-# . --flags`) -- this is genuinely headless: no window, exits in well under
-# a second.
-code_oss_cli() {
-  NODE_NO_WARNINGS=1 ELECTRON_RUN_AS_NODE=1 VSCODE_DEV=1 NODE_ENV=development "$CODE_BIN" "$VSCODE_ROOT/out/cli.js" "$VSCODE_ROOT" "$@" < /dev/null
+# to load unless told: VSCODE_ROOT must be passed as the first positional arg
+# (Electron's app locator) -- and VS Code's own arg parser (argvHelper.ts,
+# and cli.ts's identical `Electron cli.js . --flags` convention) only strips
+# that arg back out of argv, instead of treating it as a folder to open, when
+# VSCODE_DEV is set. The GUI entry (electron-main/main.ts) doesn't know
+# --list-extensions/--install-extension/--uninstall-extension at all, so
+# extension management goes through the headless CLI entry (out/cli.js ->
+# cliProcessMain.ts), reached by running code-oss as plain Node
+# (ELECTRON_RUN_AS_NODE=1): no window, exits in well under a second.
+vscode_cli() {
+  NODE_NO_WARNINGS=1 ELECTRON_RUN_AS_NODE=1 VSCODE_DEV=1 NODE_ENV=development "$CODE_BIN" "$VSCODE_ROOT/out/cli.js" "$VSCODE_ROOT" "$@"
 }
 
 echo "✓ Found self-built VS Code binary: $CODE_BIN"
@@ -97,195 +85,15 @@ if [ -f "$SANDBOX_BIN" ] && [ "$(stat -c '%U:%a' "$SANDBOX_BIN")" != "root:4755"
   sudo chmod 4755 "$SANDBOX_BIN"
 fi
 
-mkdir -p "$USER_ROOT"
-mkdir -p "$EXTENSIONS_DIR"
+source "$SCRIPT_DIR/../../lib/vscode-profile.sh"
 
-# Ensure the named profile exists in this user-data-dir.
-code_oss_cli --user-data-dir="$PROFILE_DIR" --extensions-dir="$EXTENSIONS_DIR" --profile="$PROFILE_NAME" --list-extensions >/dev/null 2>&1 || true
-
-PROFILE_ID="$(python3 - "$STORAGE_FILE" "$PROFILE_NAME" "$PROFILE_ICON" <<'PY'
-import hashlib
-import json
-import os
-import sys
-
-storage_file, profile_name, profile_icon = sys.argv[1], sys.argv[2], sys.argv[3]
-
-data = {}
-if os.path.exists(storage_file):
-  with open(storage_file, "r", encoding="utf-8") as f:
-    data = json.load(f)
-
-profiles = data.get("userDataProfiles")
-if not isinstance(profiles, list):
-  profiles = []
-
-profile = None
-for candidate in profiles:
-  if isinstance(candidate, dict) and candidate.get("name") == profile_name:
-    profile = candidate
-    break
-
-if profile is None:
-  used_locations = {
-    item.get("location")
-    for item in profiles
-    if isinstance(item, dict) and isinstance(item.get("location"), str)
-  }
-  location = hashlib.sha1(profile_name.encode("utf-8")).hexdigest()[:8]
-  while location in used_locations:
-    location = hashlib.sha1((location + profile_name).encode("utf-8")).hexdigest()[:8]
-  profile = {"location": location, "name": profile_name, "icon": profile_icon}
-  profiles.append(profile)
-else:
-  profile["icon"] = profile_icon
-
-data["userDataProfiles"] = profiles
-os.makedirs(os.path.dirname(storage_file), exist_ok=True)
-with open(storage_file, "w", encoding="utf-8") as f:
-  json.dump(data, f, indent=4)
-  f.write("\n")
-
-print(profile.get("location", ""))
-PY
-)"
-
-if [ -z "$PROFILE_ID" ]; then
-  echo "⚠ Failed to resolve VS Code profile id for $PROFILE_NAME"
-  exit 1
-fi
-
-USER_DIR="$USER_ROOT/profiles/$PROFILE_ID"
-mkdir -p "$USER_DIR"
-
-# Registering the profile above (via the raw storage.json write) doesn't provision this
-# directory the way VS Code's own "Create Profile" flow does. Without it, the storage service
-# can't open this profile's state.vscdb (SQLITE_CANTOPEN: unable to open database file) and
-# silently falls back to a non-persistent, in-memory-only storage mode for every extension's
-# `context.globalState` in this profile -- so any extension relying on globalState to survive a
-# restart (e.g. bode-claude's conversation history) quietly loses everything on quit, even though
-# nothing errors during the session itself. Only affects a *new* profile the very first time this
-# runs; harmless no-op once the directory already exists.
-mkdir -p "$USER_DIR/globalStorage"
-
-echo "Installing personal VS Code profile config to: $USER_DIR"
-for filename in keybindings.json settings.json; do
-  if [ -f "$SCRIPT_DIR/$filename" ]; then
-    cp "$SCRIPT_DIR/$filename" "$USER_DIR/$filename"
-    echo "✓ $filename"
-  else
-    echo "⚠ $filename not found in $SCRIPT_DIR"
-  fi
-done
-
-# security.workspace.trust.enabled is an "application" scope setting in VS Code:
-# such settings are shared across all profiles and are only ever read from the
-# root/default profile's User/settings.json, never from a named profile's
-# settings.json. Without this, the value above is silently ignored and
-# Restricted Mode still prompts.
-echo "Applying application-scope settings to root User/settings.json: $USER_ROOT/settings.json"
-python3 - "$SCRIPT_DIR/settings.json" "$USER_ROOT/settings.json" <<'PY'
-import json
-import sys
-
-src_file, dest_file = sys.argv[1], sys.argv[2]
-APPLICATION_SCOPE_KEYS = {"security.workspace.trust.enabled"}
-
-with open(src_file, "r", encoding="utf-8") as f:
-    src = json.load(f)
-
-try:
-    with open(dest_file, "r", encoding="utf-8") as f:
-        dest = json.load(f)
-except FileNotFoundError:
-    dest = {}
-
-for key in APPLICATION_SCOPE_KEYS:
-    if key in src:
-        dest[key] = src[key]
-
-with open(dest_file, "w", encoding="utf-8") as f:
-    json.dump(dest, f, indent=4)
-    f.write("\n")
-PY
-echo "✓ application-scope settings"
-
-# VS Code owns profile-level extensions.json with a strict schema.
-# Keep recommendations only in this component directory for installation input.
-if [ -f "$USER_DIR/extensions.json" ]; then
-  rm -f "$USER_DIR/extensions.json"
-fi
-
-echo ""
-
-echo "Installing personal VS Code extensions to: $EXTENSIONS_DIR"
-# Read the recommendation list into an array first rather than piping it
-# into `while read`: any command inside that loop's body reading its own
-# stdin (even a no-op read) would otherwise consume the rest of the piped
-# list and silently truncate the loop after one iteration.
-mapfile -t RECOMMENDED_EXTENSIONS < <(python3 -c 'import json, sys; print("\n".join(json.load(open(sys.argv[1])).get("recommendations", [])))' "$SCRIPT_DIR/extensions.json")
-for extension in "${RECOMMENDED_EXTENSIONS[@]}"; do
-  if [ -n "$extension" ]; then
-    echo "Installing extension: $extension"
-    output="$(code_oss_cli --user-data-dir="$PROFILE_DIR" --extensions-dir="$EXTENSIONS_DIR" --profile="$PROFILE_NAME" --install-extension="$extension" --force 2>&1)" || true
-    if printf '%s\n' "$output" | grep -qE 'built-in extension .* cannot be downgraded|Failed Installing Extensions'; then
-      echo "⚠ Skipping built-in/downgrade issue for extension: $extension"
-    elif [ -n "$output" ]; then
-      printf '%s\n' "$output"
-    fi
-  fi
-done
-
-# ms-python.python ships an extensionPack (vscode-pylance, debugpy,
-# vscode-python-envs) that VS Code auto-installs alongside it. This
-# profile only wants the core Python extension: Ty is the language
-# server, Ruff formats/lints, and we don't use VS Code's debugger or
-# the newer environment-manager UI. Remove the unwanted pack members
-# after install since --install-extension has no flag to skip them.
-echo ""
-echo "Removing extensions bundled by ms-python.python's extension pack:"
-for ext in ms-python.vscode-pylance ms-python.debugpy ms-python.vscode-python-envs; do
-  if code_oss_cli --user-data-dir="$PROFILE_DIR" --extensions-dir="$EXTENSIONS_DIR" --profile="$PROFILE_NAME" --list-extensions 2>/dev/null | grep -qix "$ext"; then
-    echo "Uninstalling extension: $ext"
-    code_oss_cli --user-data-dir="$PROFILE_DIR" --extensions-dir="$EXTENSIONS_DIR" --profile="$PROFILE_NAME" --uninstall-extension="$ext" >/dev/null 2>&1 \
-      || echo "⚠ Failed to uninstall $ext"
-  fi
-done
-
-# The profile-scoped extensions.json (VS Code's own bookkeeping of which
-# extensions are enabled in this profile) can drift from what's actually on
-# disk in $EXTENSIONS_DIR -- e.g. after manual --install-extension calls or
-# extension folders removed outside of this script. A stale entry here
-# breaks VS Code's extension loading entirely ("Unable to read file ... for
-# all extensions"). Prune any entry whose folder no longer exists so reruns
-# of this script always leave a working profile behind.
-if [ -f "$USER_DIR/extensions.json" ]; then
-  echo "Reconciling profile extensions manifest with $EXTENSIONS_DIR contents"
-  python3 - "$USER_DIR/extensions.json" <<'PY'
-import json
-import os
-import sys
-
-manifest_file = sys.argv[1]
-
-with open(manifest_file, "r", encoding="utf-8") as f:
-    entries = json.load(f)
-
-kept = []
-for entry in entries:
-    path = entry.get("location", {}).get("path")
-    if path and os.path.isdir(path):
-        kept.append(entry)
-    else:
-        identifier = entry.get("identifier", {}).get("id")
-        print(f"⚠ Removing stale extension entry: {identifier} -> {path}")
-
-if len(kept) != len(entries):
-    with open(manifest_file, "w", encoding="utf-8") as f:
-        json.dump(kept, f, indent=4)
-        f.write("\n")
-PY
-fi
+vscode_profile_register
+vscode_profile_copy_config
+vscode_profile_apply_app_settings
+vscode_profile_apply_state
+vscode_profile_install_extensions
+vscode_profile_remove_python_pack
+vscode_profile_reconcile_manifest
 
 echo ""
 

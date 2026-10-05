@@ -131,9 +131,7 @@ components-global/
 │   ├── README.md
 │   └── ghostty-config
 ├── CONFIG-FILES.md (this file)
-├── README.md
-├── QUICK-START.md
-└── install-all.sh
+└── README.md
 ```
 
 ## File Permissions

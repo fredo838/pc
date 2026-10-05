@@ -1,6 +1,8 @@
 #!/bin/bash
 # Pulumi installation
 
+set -e
+
 echo "Installing Pulumi..."
 
 curl -fsSL https://get.pulumi.com | sh

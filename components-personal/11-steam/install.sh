@@ -1,10 +1,12 @@
 #!/bin/bash
 # Steam installation and configuration
 
+set -e
+
 echo "Installing Steam..."
 
 # Add multiverse repository for 32-bit support
-sudo add-apt-repository multiverse
+sudo add-apt-repository -y multiverse
 sudo apt-get update
 sudo apt-get install -y steam
 

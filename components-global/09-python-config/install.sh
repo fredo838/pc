@@ -1,6 +1,8 @@
 #!/bin/bash
 # Python configuration files setup
 
+set -e
+
 echo "Setting up Python configuration files..."
 
 # Create .netrc file

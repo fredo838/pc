@@ -1,6 +1,8 @@
 #!/bin/bash
 # Go (Golang) installation
 
+set -e
+
 echo "Installing Go..."
 
 sudo apt-get update

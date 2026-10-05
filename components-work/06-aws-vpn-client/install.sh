@@ -1,6 +1,8 @@
 #!/bin/bash
 # AWS VPN Client installation
 
+set -e
+
 echo "Installing AWS VPN Client..."
 
 # Add AWS VPN Client GPG key

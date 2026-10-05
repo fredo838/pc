@@ -20,10 +20,11 @@ Both Work and Personal profiles depend on this package being present:
 
 ## Installation
 
-From the repo root, use the platform-agnostic update script:
+From the repo root, run the entry script for your platform:
 
 ```bash
-bash update.sh
+bash install-mac.sh      # macOS
+bash install-ubuntu.sh   # Ubuntu
 ```
 
 Or manually for a specific platform:

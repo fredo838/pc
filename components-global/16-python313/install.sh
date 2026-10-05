@@ -1,10 +1,12 @@
 #!/bin/bash
 # Python 3.13 installation
 
+set -e
+
 echo "Installing Python 3.13..."
 
 # Add deadsnakes PPA for Python versions
-sudo add-apt-repository ppa:deadsnakes/ppa
+sudo add-apt-repository -y ppa:deadsnakes/ppa
 sudo apt-get update
 sudo apt-get install -y python3.13
 

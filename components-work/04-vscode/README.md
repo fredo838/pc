@@ -16,10 +16,11 @@ between machines without relearning.
 
 ## Installation
 
-From the repo root, use the unified update script:
+From the repo root, run the entry script for your platform:
 
 ```bash
-bash update.sh
+bash install-mac.sh      # macOS
+bash install-ubuntu.sh   # Ubuntu
 ```
 
 Or manually:
@@ -38,7 +39,7 @@ bash components-work/04-vscode/install-macos.sh      # macOS
 
 ```bash
 # Automatic via shell wrapper (if configured in ~/.zshrc)
-code  # auto-selects Work profile for /Users/fred/centrica paths
+code  # auto-selects Work profile for ~/centrica paths
 
 # Explicit
 code --user-data-dir ~/.vscode-work --extensions-dir ~/.vscode-work-ext --profile Work

@@ -1,13 +1,15 @@
 #!/bin/bash
 # Google Cloud SDK installation
 
+set -e
+
 echo "Installing Google Cloud SDK..."
 
 # Add Google Cloud GPG key
-curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
+curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor --yes -o /usr/share/keyrings/cloud.google.gpg
 
-# Add Google Cloud repository
-echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+# Add Google Cloud repository (overwrite, so re-runs don't duplicate the entry)
+echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee /etc/apt/sources.list.d/google-cloud-sdk.list > /dev/null
 
 # Install gcloud CLI
 sudo apt-get update

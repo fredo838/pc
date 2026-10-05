@@ -41,10 +41,11 @@ This creates:
 
 ### Then provision the profile
 
-From the repo root, use the unified update script:
+From the repo root, run the entry script for your platform:
 
 ```bash
-bash update.sh
+bash install-mac.sh      # macOS
+bash install-ubuntu.sh   # Ubuntu
 ```
 
 Or manually for a specific platform:
@@ -93,9 +94,10 @@ bash install-macos.sh    # macOS
   handled *only* by the Node-only CLI entry (`out/cli.js`,
   `ELECTRON_RUN_AS_NODE=1`) — the main Electron/GUI entry
   (`electron-main/main.ts`) has no idea what those flags mean and will just
-  open an empty window instead of erroring. Both platform installers define two
-  helpers to get both right: `code_oss` (GUI launches) and `code_oss_cli`
-  (headless extension management).
+  open an empty window instead of erroring. Both platform installers define a
+  `vscode_cli` helper for this headless entry, which the shared steps in
+  [lib/vscode-profile.sh](../../lib/vscode-profile.sh) use for all extension
+  management.
 - `--enable-proposed-api=local.bode-claude` is kept for consistency even
   though self-built (unsigned) VS Code generally allows proposed APIs
   unconditionally; it's a no-op if not required. Installing the
@@ -103,7 +105,7 @@ bash install-macos.sh    # macOS
   declaring `enabledApiProposals` in its `package.json` is handled in that
   extension's own repo, not here.
 - The shell wrapper in `components-global/12-zsh/.zshrc` auto-selects
-  this profile for paths under `/Users/fred/projects/`.
+  this profile for paths under `~/projects/`.
 - Do not confuse `~/projects/vscode` (this fork, `origin` = `fredo838/vscode`)
   with any other local VS Code source checkout — only this one is built and
   wired up as the Personal profile's binary.
