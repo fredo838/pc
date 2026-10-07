@@ -71,7 +71,6 @@ bash install-ubuntu.sh global work    # skip personal
 | 04-vscode | personal | VS Code **Personal** profile on the self-built Code - OSS (build `~/projects/vscode` first) |
 | 11-steam | personal | Steam |
 | 19-chrome | personal | Google Chrome |
-| 20-gmail | personal | venv for the Gmail filter script (needs `credentials.json`, see its README) |
 
 ## 🍎 install-mac.sh
 
