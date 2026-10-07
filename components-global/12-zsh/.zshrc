@@ -161,11 +161,11 @@ code_oss_personal() {
   # WorktreeHost.addFolder in chatView.ts) rather than opening the plain folder. VS Code
   # treats a folder and its workspace file as different window identities, so opening the
   # plain folder while a workspace-file window for the same repo already exists (or gets
-  # restored on launch) produces two windows instead of reusing one. Unconditional by
-  # design (no existence check): bode-claude creates this file unconditionally the first
-  # time a repo is opened through it (`ensureMultiRoot`), so in steady state it always
-  # exists -- the only gap is the very first `code .` ever run against a brand-new repo,
-  # which will fail to open a not-yet-created workspace file instead of falling back.
+  # restored on launch) produces two windows instead of reusing one. If the workspace file
+  # doesn't exist yet (brand-new repo, never opened through bode-claude), stub in the
+  # minimal single-folder shape here so `code .` always has something to open -- bode-claude
+  # owns enriching/updating it from there (`ensureMultiRoot`), so an existing file is never
+  # touched.
   local -a args
   args=("$@")
   local idx=0 arg resolved ws_file
@@ -180,6 +180,18 @@ code_oss_personal() {
     fi
     if [[ -d "$resolved" ]]; then
       ws_file="${resolved}.code-workspace"
+      if [[ ! -e "$ws_file" ]]; then
+        cat > "$ws_file" <<EOF
+{
+  "folders": [
+    {
+      "path": "$(basename "$resolved")",
+      "name": "main"
+    }
+  ]
+}
+EOF
+      fi
       args[$idx]="$ws_file"
     fi
     break
