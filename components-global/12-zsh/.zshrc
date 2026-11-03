@@ -155,7 +155,14 @@ fi
 # own arg parser only strips that positional arg back out (instead of
 # treating it as a folder to open alongside the real target) when
 # VSCODE_DEV is set.
-code_oss_personal() {
+# code_oss_launch <app> <wm-class> <user-data-dir> <extensions-dir> <profile> [args...]:
+# the self-built VS Code with one profile's data. <app> is its macOS app wrapper
+# (~/Applications/<app>.app, see lib/code-oss-macos.sh in this repo); <wm-class>,
+# if not empty, its Linux window class (matching its desktop entry, see
+# lib/code-oss-linux.sh) so its windows get its own dock icon.
+code_oss_launch() {
+  local app="$1" wm_class="$2" user_data="$3" extensions="$4" profile="$5"
+  shift 5
   # Always redirect a directory target to its sibling <name>.code-workspace file (the
   # multi-root workspace bode-claude's per-conversation-worktree feature manages -- see
   # WorktreeHost.addFolder in chatView.ts) rather than opening the plain folder. VS Code
@@ -199,7 +206,7 @@ EOF
   set -- "${args[@]}"
 
   if [[ "$OSTYPE" == "darwin"* ]]; then
-    # On macOS, launch via app wrapper for the ochre icon, passing the
+    # On macOS, launch via app wrapper for the profile's icon, passing the
     # folder as an absolute path (open runs the wrapper with cwd=/)
     local folder=""
     for arg in "$@"; do
@@ -218,13 +225,25 @@ EOF
     # so the folder below never reaches VS Code's own single-instance IPC
     # (which is what actually opens a new window for a different folder).
     if [[ -n "$folder" ]]; then
-      open -n -a "Code-Personal" --args "$folder"
+      open -n -a "$app" --args "$folder"
     else
-      open -n -a "Code-Personal"
+      open -n -a "$app"
     fi
   else
-    VSCODE_DEV=1 NODE_ENV=development "$VSCODE_PERSONAL_BIN" "$VSCODE_PERSONAL_ROOT" --user-data-dir ~/.vscode-personal/user-data --extensions-dir ~/.vscode-personal/extensions --profile Personal --enable-proposed-api=local.bode-claude "$@"
+    local -a class_arg
+    [[ -n "$wm_class" ]] && class_arg=(--class="$wm_class")
+    VSCODE_DEV=1 NODE_ENV=development "$VSCODE_PERSONAL_BIN" "$VSCODE_PERSONAL_ROOT" --user-data-dir "$user_data" --extensions-dir "$extensions" --profile "$profile" --enable-proposed-api=local.bode-claude "${class_arg[@]}" "$@"
   fi
+}
+
+code_oss_personal() {
+  code_oss_launch Code-Personal "" ~/.vscode-personal/user-data ~/.vscode-personal/extensions Personal "$@"
+}
+
+# The IoT profile (components-work/21-vscode-iot): the self-built VS Code, for
+# exactly ~/centrica/iot-optimisation.
+code_oss_iot() {
+  code_oss_launch Code-IoT code-oss-iot ~/.vscode-iot/user-data ~/.vscode-iot/extensions IoT "$@"
 }
 
 code() {
@@ -237,11 +256,18 @@ code() {
   done
 
   # Resolve to an absolute path so relative "code ." or "code ../foo" match correctly
-  if [[ -e "$target" ]]; then
+  # (a folder via its own pwd: "." would otherwise end in "/.", which an exact match misses)
+  if [[ -d "$target" ]]; then
+    target="$(cd "$target" && pwd)"
+  elif [[ -e "$target" ]]; then
     target="$(cd "$(dirname "$target")" && pwd)/$(basename "$target")"
   fi
 
   case "$target" in
+    # Exactly this folder (or its bode-claude workspace file), not the folders in it.
+    "$HOME"/centrica/iot-optimisation|"$HOME"/centrica/iot-optimisation.code-workspace)
+      code_oss_iot "$@"
+      ;;
     "$HOME"/centrica/*|"$HOME"/centrica)
       command code --user-data-dir ~/.vscode-work --extensions-dir ~/.vscode-work-ext --profile Work "$@"
       ;;
@@ -260,6 +286,10 @@ code-work() {
 
 code-personal() {
   code_oss_personal "$@"
+}
+
+code-iot() {
+  code_oss_iot "$@"
 }
 
 PATH=$HOME/.pulumi/bin:$PATH

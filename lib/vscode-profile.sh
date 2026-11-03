@@ -152,12 +152,14 @@ vscode_profile_copy_config() {
   done
 }
 
-# security.workspace.trust.enabled and window.restoreWindows are "application"
-# scope settings in VS Code: such settings are shared across all profiles and
-# are only ever read from the root/default profile's User/settings.json, never
-# from a named profile's settings.json. Without this, the values are silently
-# ignored -- Restricted Mode still prompts, and a fresh launch still restores
-# last session's windows alongside whatever repo you explicitly asked to open.
+# security.workspace.trust.enabled, window.restoreWindows and
+# chat.agentHost.allowSignedOutWhenUsable are "application" scope settings in
+# VS Code: such settings are shared across all profiles and are only ever read
+# from the root/default profile's User/settings.json, never from a named
+# profile's settings.json. Without this, the values are silently ignored --
+# Restricted Mode still prompts, a fresh launch still restores last session's
+# windows alongside whatever repo you explicitly asked to open, and Claude
+# sessions still demand a GitHub sign-in.
 vscode_profile_apply_app_settings() {
   echo "Applying application-scope settings to root User/settings.json: $USER_ROOT/settings.json"
   python3 - "$SCRIPT_DIR/settings.json" "$USER_ROOT/settings.json" <<'PY'
@@ -165,7 +167,7 @@ import json
 import sys
 
 src_file, dest_file = sys.argv[1], sys.argv[2]
-APPLICATION_SCOPE_KEYS = {"security.workspace.trust.enabled", "window.restoreWindows"}
+APPLICATION_SCOPE_KEYS = {"security.workspace.trust.enabled", "window.restoreWindows", "chat.agentHost.allowSignedOutWhenUsable"}
 
 with open(src_file, "r", encoding="utf-8") as f:
     src = json.load(f)

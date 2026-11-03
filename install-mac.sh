@@ -1,6 +1,6 @@
 #!/bin/bash
 # Set up (or re-apply) the parts of this repo that support macOS: the VS Code
-# install check, the Personal and Work VS Code profiles, and zsh config.
+# install check, the Personal, Work and IoT VS Code profiles, and zsh config.
 # Safe to re-run.
 
 set -e
@@ -22,6 +22,7 @@ set +e
 run_component "$REPO_DIR/components-global/04-vscode/install-macos.sh"
 run_component "$REPO_DIR/components-personal/04-vscode/install-macos.sh"
 run_component "$REPO_DIR/components-work/04-vscode/install-macos.sh"
+run_component "$REPO_DIR/components-work/21-vscode-iot/install-macos.sh"
 run_component "$REPO_DIR/components-global/12-zsh/install.sh"
 
 print_summary

@@ -8,6 +8,7 @@
     "terminal.integrated.defaultProfile.linux": "zsh",
     "terminal.integrated.initialHint": false,
     "security.workspace.trust.enabled": false,
+    "chat.agentHost.allowSignedOutWhenUsable": true,
     "chat.viewSessions.orientation": "stacked",
     "bodeClaude.developerMode": true,
     "multiCommand.commands": [

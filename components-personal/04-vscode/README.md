@@ -21,8 +21,9 @@ tied to a specific packaged channel.
 - `extensions.json` - identical on both platforms
 - `product.overrides.json` - adds an `extensionsGallery` pointing at open-vsx.org
   (used by both platforms)
-- `make-ochre-icon.py` - Recolors the VS Code logo to ochre. Used by both platforms:
-  Linux for the desktop icon, macOS for the app wrapper's custom icon
+- The ochre icon is made by [lib/recolour-icon.py](../../lib/recolour-icon.py) (shared with
+  the IoT profile, which is teal): Linux for the desktop icon, macOS for the app wrapper's
+  (via [lib/code-oss-macos.sh](../../lib/code-oss-macos.sh))
 
 ## Installation
 
@@ -116,7 +117,7 @@ bash install-macos.sh    # macOS
   with `StartupWMClass=code-oss-dev` for GNOME desktop integration. The icon
   itself is the real VS Code logo at `/usr/share/pixmaps/vscode.png` (installed by
   `components-global/04-vscode`'s apt package), recolored to ochre by
-  `make-ochre-icon.py` so Personal is recognizable as VS Code at a glance
+  `lib/recolour-icon.py` so Personal is recognizable as VS Code at a glance
   but visually distinct from Work's blue icon.
 - **Chrome sandbox**: The chrome-sandbox binary needs SUID setup; `install-linux.sh`
   handles this automatically.
