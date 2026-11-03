@@ -1,0 +1,19 @@
+{
+    "recommendations": [
+        "ryuta46.multi-command",
+        "dbaeumer.vscode-eslint",
+        "golang.go",
+        "charliermarsh.ruff",
+        "astral-sh.ty",
+        "njpwerner.autodocstring",
+        "redhat.vscode-yaml",
+        "teticio.python-envy",
+        "lukasramroth.fold-python-comments",
+        "anthropic.claude-code"
+    ],
+    "unwantedRecommendations": [
+        "ms-python.vscode-python-envs",
+        "ms-python.vscode-pylance",
+        "ms-python.debugpy"
+    ]
+}

@@ -71,19 +71,9 @@ vscode_cli() {
 
 echo "✓ Found self-built VS Code binary: $CODE_BIN"
 
-# `npm run electron` deletes and re-extracts .build/electron from a plain zip
-# on every run, owned by the current user. Chromium's SUID sandbox helper
-# refuses to run unless it's owned by root with mode 4755 ("FATAL: The SUID
-# sandbox helper binary was found, but is not configured correctly"), which
-# a packaged .deb build normally fixes via its postinst script. Re-apply it
-# here so every extension-management call below (and every `code` launch)
-# doesn't crash with that error after a fresh build.
-SANDBOX_BIN="$VSCODE_ROOT/.build/electron/chrome-sandbox"
-if [ -f "$SANDBOX_BIN" ] && [ "$(stat -c '%U:%a' "$SANDBOX_BIN")" != "root:4755" ]; then
-  echo "Fixing chrome-sandbox ownership/permissions (requires sudo):"
-  sudo chown root:root "$SANDBOX_BIN"
-  sudo chmod 4755 "$SANDBOX_BIN"
-fi
+# Root-owned chrome-sandbox after every fresh build (see lib/code-oss-linux.sh).
+source "$SCRIPT_DIR/../../lib/code-oss-linux.sh"
+code_oss_linux_fix_sandbox
 
 source "$SCRIPT_DIR/../../lib/vscode-profile.sh"
 
@@ -97,64 +87,8 @@ vscode_profile_reconcile_manifest
 
 echo ""
 
-# GNOME (and other desktop shells) picks up an app's dock/taskbar icon by
-# matching a running window's WM_CLASS / Wayland app-id against an installed
-# .desktop file's StartupWMClass. The apt-installed code/code-insiders get
-# this via their .deb's postinst (code.desktop + hicolor icons under
-# /usr/share/*), but this is a raw unpackaged Electron binary with no such
-# registration -- so the running window shows the desktop's generic
-# fallback icon next to properly-integrated apps like Chrome/Steam. Since
-# VS Code never calls Electron's app.setName() for a dev build, the runtime
-# app name (and therefore WM_CLASS/app-id) defaults to VSCODE_ROOT's own
-# package.json "name" field, which is "code-oss-dev" -- not "code-oss"
-# (product.json's applicationName) or "Code - OSS" (nameShort).
-#
-# The icon itself is the real VS Code logo -- installed at
-# /usr/share/pixmaps/vscode.png by components-global/04-vscode's apt
-# package -- recolored to ochre via make-ochre-icon.py so the Personal
-# profile is recognizable as VS Code at a glance but visually distinct
-# from the blue Work icon.
-REAL_LOGO="/usr/share/pixmaps/vscode.png"
-ICON_NAME="code-oss-personal"
-DESKTOP_FILE="$HOME/.local/share/applications/$ICON_NAME.desktop"
-
-if [ ! -f "$REAL_LOGO" ]; then
-  echo "⚠ Skipping desktop entry/icon install: $REAL_LOGO not found"
-  echo "  Install VS Code's apt package first (provides the source logo):"
-  echo "    cd $(cd "$SCRIPT_DIR/../../components-global/04-vscode" && pwd) && bash install.sh"
-elif ! command -v convert >/dev/null 2>&1; then
-  echo "⚠ Skipping desktop entry/icon install: ImageMagick 'convert' not found"
-elif ! python3 -c "import PIL" >/dev/null 2>&1; then
-  echo "⚠ Skipping desktop entry/icon install: Pillow not installed for python3"
-  echo "  Install it with: pip install --user Pillow"
-else
-  echo "Installing desktop entry + icons for self-built Personal VS Code..."
-  OCHRE_MASTER="$(mktemp --suffix=.png)"
-  python3 "$SCRIPT_DIR/make-ochre-icon.py" "$REAL_LOGO" "$OCHRE_MASTER"
-  for size in 16 24 32 48 64 96 128 192 256; do
-    ICON_DIR="$HOME/.local/share/icons/hicolor/${size}x${size}/apps"
-    mkdir -p "$ICON_DIR"
-    convert "$OCHRE_MASTER" -resize "${size}x${size}" "$ICON_DIR/$ICON_NAME.png"
-  done
-  rm -f "$OCHRE_MASTER"
-
-  cat > "$DESKTOP_FILE" <<EOF
-[Desktop Entry]
-Name=VS Code (Personal)
-Comment=Code Editing. Redefined. (self-built, Personal profile)
-GenericName=Text Editor
-Exec=env VSCODE_DEV=1 NODE_ENV=development "$CODE_BIN" "$VSCODE_ROOT" --user-data-dir "$PROFILE_DIR" --extensions-dir "$EXTENSIONS_DIR" --profile Personal --enable-proposed-api=local.bode-claude %F
-Icon=$ICON_NAME
-Type=Application
-StartupNotify=true
-StartupWMClass=code-oss-dev
-Categories=TextEditor;Development;IDE;
-Keywords=vscode;code-oss;
-EOF
-
-  command -v update-desktop-database >/dev/null 2>&1 && update-desktop-database "$HOME/.local/share/applications" >/dev/null 2>&1
-  command -v gtk-update-icon-cache >/dev/null 2>&1 && gtk-update-icon-cache -f -t "$HOME/.local/share/icons/hicolor" >/dev/null 2>&1
-  echo "✓ Desktop entry + icons installed ($DESKTOP_FILE)"
-fi
+# Desktop entry + ochre icons (see lib/code-oss-linux.sh). Personal keeps the
+# build's own WM_CLASS, code-oss-dev.
+code_oss_install_linux_desktop code-oss-personal "VS Code (Personal)" CC7722 code-oss-dev
 
 echo ""

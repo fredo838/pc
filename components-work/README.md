@@ -15,6 +15,11 @@ Centrica-specific development tools and infrastructure for work projects.
 | 06 | **aws-vpn-client** | AWS VPN client (Centrica work network) |
 | 07 | **aws-cli** | AWS CLI v2 (work AWS projects) |
 
+### Editor
+| # | Component | Purpose |
+|---|-----------|---------|
+| 21 | **vscode-iot** | Self-built VS Code **IoT** profile with bode-claude, for exactly `~/centrica/iot-optimisation` (macOS and Linux) |
+
 ## 🚀 Quick Installation
 
 ### Install All Work Components

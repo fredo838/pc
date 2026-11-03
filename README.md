@@ -16,13 +16,16 @@ Configuration is organized into modular components, grouped by context:
   context (shell, terminal, Python, Go, cloud CLIs, the VS Code apt package, etc.)
 - **[components-personal/](components-personal/)** — personal-only tools (GitHub SSH,
   Chrome, Steam, and the self-built VS Code **Personal** profile)
-- **[components-work/](components-work/)** — work-only tools (GitLab SSH, AWS, and the
-  VS Code **Work** profile, built on the Stable package from components-global)
+- **[components-work/](components-work/)** — work-only tools (GitLab SSH, AWS, the
+  VS Code **Work** profile, built on the Stable package from components-global, and the
+  self-built **IoT** profile, for exactly `~/centrica/iot-optimisation`)
 
 - **[lib/](lib/)** — shell helpers shared by components:
   [install-runner.sh](lib/install-runner.sh) runs components and prints the summary, and
   [vscode-profile.sh](lib/vscode-profile.sh) holds the profile/settings/extension steps
-  used by both `04-vscode` installers on both platforms
+  used by every VS Code profile installer on both platforms, and
+  [code-oss-macos.sh](lib/code-oss-macos.sh) / [code-oss-linux.sh](lib/code-oss-linux.sh) the
+  launch helper, app wrapper or desktop entry, and icon of the self-built profiles (Personal, IoT)
 
 Each component is a numbered directory (e.g. `12-zsh/`) with its own `install.sh` (or
 `install-linux.sh`/`install-macos.sh`) and, where relevant, the config files it deploys.
